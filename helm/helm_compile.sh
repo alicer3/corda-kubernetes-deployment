@@ -43,6 +43,19 @@ GetPathToCurrentlyExecutingScript () {
 }
 GetPathToCurrentlyExecutingScript
 
+InitialRegistration() {
+  INITIAL_REGISTRATION=""
+	INITIAL_REGISTRATION=$(grep -A 3 'initialRegistration:' $DIR/values.yaml | grep 'enabled: ' | cut -d ':' -f 2 | xargs)
+
+	if [ "$INITIAL_REGISTRATION" = "true" ]; then
+		$DIR/initial_registration/initial_registration.sh
+	else
+		echo -e "${YELLOW}Warning${NC}"
+		echo "Skipping initial registration step. (disabled in values.yaml)"
+	fi
+}
+InitialRegistration
+
 HelmCompilePrerequisites () {
 	helm version | grep "v2." > /dev/null 2>&1
 	if [ "$?" -ne "0" ] ; then
@@ -62,42 +75,55 @@ HelmCompilePrerequisites () {
 
 	TEMPLATE_NAMESPACE=""
 	TEMPLATE_NAMESPACE=$(grep -A 3 'config:' $DIR/values.yaml | grep 'namespace: "' | cut -d '"' -f 2)
+	RESOURCE_NAME=$(grep -A 10 'config:' $DIR/values.yaml | grep 'resourceName: "' | cut -d '"' -f 2)
 
 	if [ "$TEMPLATE_NAMESPACE" = "" ]; then
 		echo -e "${RED}ERROR${NC}"
 		echo "Kubernetes requires a namespace to deploy resources to, no namespace is defined in values.yaml, please define one."
 		exit 1
 	fi
+
+	if [ "$RESOURCE_NAME" = "" ]; then
+		echo -e "${RED}ERROR${NC}"
+		echo "ResourceName is the identifier for deployment, no resourceName is defined in values.yaml, please define one."
+		exit 1
+	fi
 	
 	if [ ! -f $DIR/files/network/networkRootTrustStore.jks ]; then
 		echo -e "${RED}ERROR${NC}"
-		echo "$DIR/files/networkRootTrustStore.jks missing, this should have been copied to this folder before running one-time-setup.sh script."
+		echo "$DIR/files/networkRootTrustStore.jks missing, this should have been copied to this folder before running this script."
 		exit 1
 	fi
 	
 	if [ ! -f $DIR/files/network/network-parameters.file ]; then
 		echo -e "${RED}ERROR${NC}"
-		echo "$DIR/files/network-parameters.file missing, this should have been created by one-time-setup.sh script."
+		echo "$DIR/files/network-parameters.file missing, this should have been created by InitialRegistration in helm_compile.sh."
 		exit 1
 	fi
 	
-	if [ ! -f $DIR/files/certificates/node/nodekeystore.jks -o ! -f $DIR/files/certificates/node/sslkeystore.jks -o ! -f $DIR/files/certificates/node/truststore.jks ]; then
+	if [ ! -f $DIR/files/certificates/node/$RESOURCE_NAME/nodekeystore.jks -o ! -f $DIR/files/certificates/node/$RESOURCE_NAME/sslkeystore.jks -o ! -f $DIR/files/certificates/node/$RESOURCE_NAME/truststore.jks ]; then
 		echo -e "${RED}ERROR${NC}"
-		echo "$DIR/files/certificates/node/ missing certificates, expecting to see nodekeystore.jks, sslkeystore.jks and truststore.jks, these files should have been created by one-time-setup.sh script."
+		echo "$DIR/files/certificates/node/$RESOURCE_NAME missing certificates, expecting to see nodekeystore.jks, sslkeystore.jks and truststore.jks, these files should have been created by InitialRegistration in helm_compile.sh."
 		echo "Files in folder $DIR/files/certificates/node:"
-		ls -al $DIR/files/certificates/node
+		ls -al $DIR/files/certificates/node/$RESOURCE_NAME
 		exit 1
 	fi
-	
-	if [ ! -f $DIR/files/certificates/firewall_tunnel/bridge.jks -o ! -f $DIR/files/certificates/firewall_tunnel/float.jks -o ! -f $DIR/files/certificates/firewall_tunnel/trust.jks ]; then
-		echo -e "${RED}ERROR${NC}"
-		echo "$DIR/files/certificates/firewall_tunnel/ missing certificates, expecting to see bridge.jks, float.jks and trust.jks, these files should have been created by one-time-setup.sh script."
-		echo "Files in folder $DIR/files/certificates/firewall_tunnel:"
-		ls -al $DIR/files/certificates/firewall_tunnel
-		exit 1
-	fi
+
+#	FIREWALL_DEPLOY=$(grep -A 3 'cordaFirewall:' $DIR/values.yaml | grep 'enabled: ' | cut -d ':' -f 2 | xargs)
+#	echo
+#	if [ "$FIREWALL_DEPLOY" = "true" ]; then
+#    if [ ! -f $DIR/files/certificates/firewall_tunnel/bridge.jks -o ! -f $DIR/files/certificates/firewall_tunnel/float.jks -o ! -f $DIR/files/certificates/firewall_tunnel/trust.jks ]; then
+#      echo -e "${RED}ERROR${NC}"
+#      echo "$DIR/files/certificates/firewall_tunnel/ missing certificates, expecting to see bridge.jks, float.jks and trust.jks, these files should have been created by one-time-setup.sh script."
+#      echo "Files in folder $DIR/files/certificates/firewall_tunnel:"
+#      ls -al $DIR/files/certificates/firewall_tunnel
+#      exit 1
+#    fi
+#  fi
 }
 HelmCompilePrerequisites
+
+
 
 HelmCompile () {
 	echo "====== Deploying to Kubernetes cluster next ... ====== "
@@ -124,7 +150,7 @@ HelmCompile () {
 	kubectl apply -f $DIR/output/corda/templates/ --namespace=$TEMPLATE_NAMESPACE
 
 	# Copy CorDapps, Database drivers etc.
-	#$DIR/output/corda/templates/copy-files.sh
+	$DIR/output/corda/templates/copy-files.sh
 	echo "====== Deploying to Kubernetes cluster completed. ====== "
 }
 HelmCompile

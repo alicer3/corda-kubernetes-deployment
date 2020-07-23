@@ -48,6 +48,8 @@ set -eu
 ROOT_FOLDER=$DIR/../../../../..
 # Store DIR in another variable because including docker_config.sh will overwrite it
 THIS_PATH=$DIR
+NODE_RESOURCE_NAME="{{ .Values.config.resourceName }}"
+
 
 checkStatus () {
     status=$1
@@ -85,7 +87,7 @@ ensureFileExistsAndCopy () {
 
 copyCertificates () {
     CERTS_GENERATION_FOLDER=$ROOT_FOLDER/helm/initial_registration/output/corda/templates/workspace/certificates
-    TO_FOLDER=$ROOT_FOLDER/helm/files/certificates/node
+    TO_FOLDER=$ROOT_FOLDER/helm/files/certificates/node/$NODE_RESOURCE_NAME
     ensureFileExistsAndCopy $CERTS_GENERATION_FOLDER/nodekeystore.jks $TO_FOLDER/nodekeystore.jks
     ensureFileExistsAndCopy $CERTS_GENERATION_FOLDER/sslkeystore.jks $TO_FOLDER/sslkeystore.jks
     ensureFileExistsAndCopy $CERTS_GENERATION_FOLDER/truststore.jks $TO_FOLDER/truststore.jks    
@@ -178,10 +180,11 @@ initialRegistration () {
     TRUST_STORE_PASSWORD=$4
     #echo "Cleaning any previous initial-registration runs..."
     #rm -rf $THIS_PATH/workspace
-    
-    TRUSTSTORE_JKS=$ROOT_FOLDER/helm/files/certificates/node/truststore.jks
-    NODEKEYSTORE_JKS=$ROOT_FOLDER/helm/files/certificates/node/nodekeystore.jks
-    SSLKEYSTORE_JKS=$ROOT_FOLDER/helm/files/certificates/node/sslkeystore.jks
+
+    mkdir $ROOT_FOLDER/helm/files/certificates/node/$NODE_RESOURCE_NAME
+    TRUSTSTORE_JKS=$ROOT_FOLDER/helm/files/certificates/node/$NODE_RESOURCE_NAME/truststore.jks
+    NODEKEYSTORE_JKS=$ROOT_FOLDER/helm/files/certificates/node/$NODE_RESOURCE_NAME/nodekeystore.jks
+    SSLKEYSTORE_JKS=$ROOT_FOLDER/helm/files/certificates/node/$NODE_RESOURCE_NAME/sslkeystore.jks
     
     echo "Checking if certificates already exist..."
     if [ ! -f $TRUSTSTORE_JKS -a ! -f $NODEKEYSTORE_JKS -a ! -f $SSLKEYSTORE_JKS ]; then

@@ -109,14 +109,14 @@ spec:
           name: node-config-volume
           subPath: node.conf
           readOnly: true
-        - mountPath: /opt/corda/workspace/bridge.conf
-          name: node-config-volume
-          subPath: bridge.conf
-          readOnly: true
-        - mountPath: /opt/corda/workspace/float.conf
-          name: node-config-volume
-          subPath: float.conf
-          readOnly: true
+#        - mountPath: /opt/corda/workspace/bridge.conf
+#          name: node-config-volume
+#          subPath: bridge.conf
+#          readOnly: true
+#        - mountPath: /opt/corda/workspace/float.conf
+#          name: node-config-volume
+#          subPath: float.conf
+#          readOnly: true
         - mountPath: /opt/corda/workspace/networkRootTrustStore.jks
           name: node-config-volume
           subPath: networkRootTrustStore.jks
