@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.config.resourceName }}-database-service
+  labels:
+    app: {{ .Values.config.resourceName }}-database-service
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
+spec:
+  selector:
+    app: {{ .Values.config.resourceName }}-database
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
+  ports:
+    - protocol: "TCP"
+      port: 5432
+      targetPort: 5432
+  type: LoadBalancer
+  loadBalancerIP: "{{ .Values.config.databaseLoadBalancerIP }}"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.resourceName }}-database
+  labels:
+    app: {{ .Values.config.resourceName }}-database
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.resourceName }}-database
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.resourceName }}-database
+        tier: database
+        group: {{ .Values.config.resourceName }}
+        env: {{ .Values.config.env }}
+    spec:
+      volumes:
+        - name: configmap-volume
+          configMap:
+            name: {{ .Values.config.resourceName }}-corda-configmap
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "corda"
+            - name: POSTGRES_USER
+              value: "pguser"
+            - name: POSTGRES_PASSWORD
+              value: "pgpassword"
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d/init_database.sql
+              name: configmap-volume
+              subPath: init_database.sql
+              readOnly: true

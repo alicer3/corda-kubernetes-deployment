@@ -178,10 +178,10 @@ initialRegistration () {
     NODE_CONF=$2
     TRUST_STORE=$3
     TRUST_STORE_PASSWORD=$4
-    #echo "Cleaning any previous initial-registration runs..."
-    #rm -rf $THIS_PATH/workspace
+    echo "Cleaning any previous initial-registration runs..."
+    rm -rf $THIS_PATH/workspace
 
-    mkdir $ROOT_FOLDER/helm/files/certificates/node/$NODE_RESOURCE_NAME
+    mkdir -p $ROOT_FOLDER/helm/files/certificates/node/$NODE_RESOURCE_NAME
     TRUSTSTORE_JKS=$ROOT_FOLDER/helm/files/certificates/node/$NODE_RESOURCE_NAME/truststore.jks
     NODEKEYSTORE_JKS=$ROOT_FOLDER/helm/files/certificates/node/$NODE_RESOURCE_NAME/nodekeystore.jks
     SSLKEYSTORE_JKS=$ROOT_FOLDER/helm/files/certificates/node/$NODE_RESOURCE_NAME/sslkeystore.jks

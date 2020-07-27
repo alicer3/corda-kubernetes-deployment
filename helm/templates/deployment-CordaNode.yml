@@ -2,11 +2,17 @@ kind: Service
 apiVersion: v1
 metadata:
   name: {{ .Values.config.resourceName }}-service
+  labels:
+    app: {{ .Values.config.resourceName }}-service
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
 spec:
   loadBalancerIP: "{{ .Values.config.nodeLoadBalancerIP }}"
   type: LoadBalancer
   selector:
     app: {{ .Values.config.resourceName }}-node
+    node: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
   ports:
 {{- if not .Values.setup.cordaFirewall.enabled }}
   - name: p2p
@@ -33,6 +39,8 @@ metadata:
 spec:
   selector:
     app: {{ .Values.config.resourceName }}-node
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
   ports:
   - name: p2p
     protocol: TCP
@@ -43,9 +51,11 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.config.resourceName }}-deployment
+  name: {{ .Values.config.resourceName }}-node-deployment
   labels:
     app: {{ .Values.config.resourceName }}-node
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
 spec:
   replicas: 1   
   selector:
@@ -55,6 +65,8 @@ spec:
     metadata:
       labels:
         app: {{ .Values.config.resourceName }}-node
+        group: {{ .Values.config.resourceName }}
+        env: {{ .Values.config.env }}
     spec:
 {{- if .Values.config.storage.awsEBS.enabled }}
       affinity:
@@ -109,14 +121,6 @@ spec:
           name: node-config-volume
           subPath: node.conf
           readOnly: true
-#        - mountPath: /opt/corda/workspace/bridge.conf
-#          name: node-config-volume
-#          subPath: bridge.conf
-#          readOnly: true
-#        - mountPath: /opt/corda/workspace/float.conf
-#          name: node-config-volume
-#          subPath: float.conf
-#          readOnly: true
         - mountPath: /opt/corda/workspace/networkRootTrustStore.jks
           name: node-config-volume
           subPath: networkRootTrustStore.jks

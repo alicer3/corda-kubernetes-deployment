@@ -2,6 +2,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Values.config.resourceName }}-corda-configmap
+  labels:
+    app: {{ .Values.config.resourceName }}-configmap
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
 data:
   node.conf: |+
 {{- $filename := (printf "%s-%s%s" "files/conf/node" .Values.setup.cordaVersion ".conf") }}

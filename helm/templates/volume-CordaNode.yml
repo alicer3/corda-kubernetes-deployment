@@ -2,6 +2,10 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ .Values.config.resourceName }}-pvc
+  labels:
+    app: {{ .Values.config.resourceName }}-pvc
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
 spec:
   accessModes:
     - ReadWriteOnce
@@ -15,6 +19,10 @@ kind: PersistentVolume
 apiVersion: v1
 metadata:
   name: {{ .Values.config.resourceName }}-pv-volume
+  labels:
+    app: {{ .Values.config.resourceName }}-pv
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
 spec:
   storageClassName: {{ .Values.config.storage.resourceName }}
   capacity:

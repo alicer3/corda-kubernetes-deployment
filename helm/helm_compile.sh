@@ -88,19 +88,19 @@ HelmCompilePrerequisites () {
 		echo "ResourceName is the identifier for deployment, no resourceName is defined in values.yaml, please define one."
 		exit 1
 	fi
-	
+
 	if [ ! -f $DIR/files/network/networkRootTrustStore.jks ]; then
 		echo -e "${RED}ERROR${NC}"
 		echo "$DIR/files/networkRootTrustStore.jks missing, this should have been copied to this folder before running this script."
 		exit 1
 	fi
-	
+
 	if [ ! -f $DIR/files/network/network-parameters.file ]; then
 		echo -e "${RED}ERROR${NC}"
 		echo "$DIR/files/network-parameters.file missing, this should have been created by InitialRegistration in helm_compile.sh."
 		exit 1
 	fi
-	
+
 	if [ ! -f $DIR/files/certificates/node/$RESOURCE_NAME/nodekeystore.jks -o ! -f $DIR/files/certificates/node/$RESOURCE_NAME/sslkeystore.jks -o ! -f $DIR/files/certificates/node/$RESOURCE_NAME/truststore.jks ]; then
 		echo -e "${RED}ERROR${NC}"
 		echo "$DIR/files/certificates/node/$RESOURCE_NAME missing certificates, expecting to see nodekeystore.jks, sslkeystore.jks and truststore.jks, these files should have been created by InitialRegistration in helm_compile.sh."
@@ -123,7 +123,21 @@ HelmCompilePrerequisites () {
 }
 HelmCompilePrerequisites
 
-
+ClearCorDappsInFileShare () {
+    ACCOUNT_KEY=$(grep -A 100 'config:' $DIR/values.yaml | grep 'azureStorageAccountKey: "' | cut -d '"' -f 2)
+    ACCOUNT_NAME=$(grep -A 100 'config:' $DIR/values.yaml | grep 'azureStorageAccountName: "' | cut -d '"' -f 2)
+    FILESHARE=$( grep -A 100 'config:' $DIR/values.yaml |grep -A 100 'storage:' |grep -A 10 'node:' |grep 'fileShareName: "' | cut -d '"' -f 2)
+    az storage file delete-batch --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME --pattern "cordapps/*.jar" --source $FILESHARE --dryrun
+    echo "If you are sure to delete the listed cordapps, please type 'yes' and press enter."
+    read -p "Enter 'yes' to continue: " confirm
+    echo $confirm
+    if [ "$confirm" = "yes" ]; then
+        echo "Clearing cordapps..."
+        az storage file delete-batch --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME --pattern "cordapps/*.jar" --source $FILESHARE
+        echo "Done clearing cordapps"
+    fi
+}
+ClearCorDappsInFileShare
 
 HelmCompile () {
 	echo "====== Deploying to Kubernetes cluster next ... ====== "
