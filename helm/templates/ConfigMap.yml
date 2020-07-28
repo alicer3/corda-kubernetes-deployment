@@ -41,7 +41,8 @@ binaryData:
 {{ $path | base | indent 2 }}:
 {{ $root.Files.Get $path | b64enc | quote | indent 4  }}
 {{- end }}
-{{- range $path, $bytes := .Files.Glob "files/certificates/node/**.jks" }}
+{{- $certfolder := (printf "%s%s%s" "files/certificates/node/" .Values.config.resourceName "/**.jks") }}
+{{- range $path, $bytes := .Files.Glob $certfolder }}
 {{ $path | base | indent 2 }}:
 {{ $root.Files.Get $path | b64enc | quote | indent 4  }}
 {{- end }}

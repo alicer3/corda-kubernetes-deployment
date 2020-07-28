@@ -123,22 +123,6 @@ HelmCompilePrerequisites () {
 }
 HelmCompilePrerequisites
 
-ClearCorDappsInFileShare () {
-    ACCOUNT_KEY=$(grep -A 100 'config:' $DIR/values.yaml | grep 'azureStorageAccountKey: "' | cut -d '"' -f 2)
-    ACCOUNT_NAME=$(grep -A 100 'config:' $DIR/values.yaml | grep 'azureStorageAccountName: "' | cut -d '"' -f 2)
-    FILESHARE=$( grep -A 100 'config:' $DIR/values.yaml |grep -A 100 'storage:' |grep -A 10 'node:' |grep 'fileShareName: "' | cut -d '"' -f 2)
-    az storage file delete-batch --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME --pattern "cordapps/*.jar" --source $FILESHARE --dryrun
-    echo "If you are sure to delete the listed cordapps, please type 'yes' and press enter."
-    read -p "Enter 'yes' to continue: " confirm
-    echo $confirm
-    if [ "$confirm" = "yes" ]; then
-        echo "Clearing cordapps..."
-        az storage file delete-batch --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME --pattern "cordapps/*.jar" --source $FILESHARE
-        echo "Done clearing cordapps"
-    fi
-}
-ClearCorDappsInFileShare
-
 HelmCompile () {
 	echo "====== Deploying to Kubernetes cluster next ... ====== "
 	echo "Compiling Helm templates..."
@@ -163,8 +147,6 @@ HelmCompile () {
 	echo "Applying templates to Kubernetes cluster:"
 	kubectl apply -f $DIR/output/corda/templates/ --namespace=$TEMPLATE_NAMESPACE
 
-	# Copy CorDapps, Database drivers etc.
-	$DIR/output/corda/templates/copy-files.sh
 	echo "====== Deploying to Kubernetes cluster completed. ====== "
 }
 HelmCompile
