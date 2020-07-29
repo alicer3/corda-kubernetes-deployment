@@ -2,7 +2,6 @@
 
 set -eu
 DIR="."
-RESOURCE_GROUP="KubernetesPlayground-NodePool"
 DeleteAllKubernetesResources () {
 	echo "====== Deleting all Kubernetes resources next ... ====== "
 	kubectl delete --all jobs --wait=false
@@ -48,6 +47,7 @@ DeleteAzureResources() {
   FILESHARE=$(grep -A 10 'config:' $DIR/values.yaml | grep 'resourceName: "' | cut -d '"' -f 2)
   ACCOUNT_KEY=$(grep -A 100 'config:' $DIR/values.yaml | grep 'azureStorageAccountKey: "' | cut -d '"' -f 2)
   ACCOUNT_NAME=$(grep -A 100 'config:' $DIR/values.yaml | grep 'azureStorageAccountName: "' | cut -d '"' -f 2)
+  RESOURCE_GROUP=$(grep -A 100 'config:' $DIR/values.yaml | grep 'nodepoolResourceGroup: "' | cut -d '"' -f 2)
 
 #  echo "!!! Deleting fileshare will delete all the logs
 #  If you are sure to delete the fileshare, please type 'yes' and press enter."
@@ -66,8 +66,8 @@ DeleteAzureResources() {
 
 main() {
   DeleteResourceNameKubernetesResources
-  sleep 30
-  DeleteAzureResources
+#  sleep 30
+#  DeleteAzureResources
 }
 
 main

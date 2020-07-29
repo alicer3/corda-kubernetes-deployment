@@ -109,31 +109,31 @@ HelmCompilePrerequisites () {
 		exit 1
 	fi
 
-#	FIREWALL_DEPLOY=$(grep -A 3 'cordaFirewall:' $DIR/values.yaml | grep 'enabled: ' | cut -d ':' -f 2 | xargs)
-#	echo
-#	if [ "$FIREWALL_DEPLOY" = "true" ]; then
-#    if [ ! -f $DIR/files/certificates/firewall_tunnel/bridge.jks -o ! -f $DIR/files/certificates/firewall_tunnel/float.jks -o ! -f $DIR/files/certificates/firewall_tunnel/trust.jks ]; then
-#      echo -e "${RED}ERROR${NC}"
-#      echo "$DIR/files/certificates/firewall_tunnel/ missing certificates, expecting to see bridge.jks, float.jks and trust.jks, these files should have been created by one-time-setup.sh script."
-#      echo "Files in folder $DIR/files/certificates/firewall_tunnel:"
-#      ls -al $DIR/files/certificates/firewall_tunnel
-#      exit 1
-#    fi
-#  fi
 }
 HelmCompilePrerequisites
+
+ReuploadCorDappsInFileShare () {
+    ACCOUNT_KEY=$(grep -A 100 'config:' $DIR/values.yaml | grep 'azureStorageAccountKey: "' | cut -d '"' -f 2)
+    ACCOUNT_NAME=$(grep -A 100 'config:' $DIR/values.yaml | grep 'azureStorageAccountName: "' | cut -d '"' -f 2)
+    FILESHARE=$( grep -A 100 'config:' $DIR/values.yaml |grep -A 100 'storage:' |grep -A 10 'node:' |grep 'fileShareName: "' | cut -d '"' -f 2)
+    az storage file delete-batch --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME --pattern "cordapps/*.jar" --source $FILESHARE --dryrun
+
+    echo "Clearing cordapps..."
+    az storage file delete-batch --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME --pattern "cordapps/*.jar" --source $FILESHARE
+    echo "Done clearing cordapps"
+
+    echo "Uploading cordapps..."
+    az storage file upload-batch --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME \
+    --destination "https://$ACCOUNT_NAME.file.core.windows.net/$FILESHARE" --source $DIR/files/cordapps/ \
+    --destination-path cordapps --pattern '*.jar'
+    echo "Done uploading cordapps"
+}
+ReuploadCorDappsInFileShare
 
 HelmCompile () {
 	echo "====== Deploying to Kubernetes cluster next ... ====== "
 	echo "Compiling Helm templates..."
 	helm template $DIR --name $TEMPLATE_NAMESPACE --namespace $TEMPLATE_NAMESPACE --output-dir $DIR/output
-
-	# copy-files script
-	SCRIPT="$DIR/output/corda/templates/copy-files.sh"
-	mv $SCRIPT.yml $SCRIPT
-	# Helm always adds a few extra lines, which we want to remove from shell scripts
-	tail -n +3 "$SCRIPT" > "$SCRIPT.tmp" && mv "$SCRIPT.tmp" "$SCRIPT"
-	chmod +x $SCRIPT
 
 	echo "Creating Docker Container Registry Pull Secret..."
 	# docker secret script

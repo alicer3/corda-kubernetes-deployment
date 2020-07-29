@@ -86,13 +86,13 @@ EnsureDockerIsAvailableAndReachable () {
 EnsureDockerIsAvailableAndReachable
 
 DOCKER_REGISTRY=""
-DOCKER_CONF_RAW=$(grep -A 8 'containerRegistry:' $DIR/../helm/values.yaml) # Find configuration path .Values.config.containerRegistry:
+DOCKER_CONF_RAW=$(grep -A 8 'containerRegistry:' $DIR/../helm/values/templates/values-template.yml) # Find configuration path .Values.config.containerRegistry:
 DOCKER_REGISTRY=$(echo "$DOCKER_CONF_RAW" | grep 'serverAddress: "' | cut -d '"' -f 2)
 DOCKER_USER=$(echo "$DOCKER_CONF_RAW" | grep 'username: "' | cut -d '"' -f 2)
 DOCKER_PASSWORD=$(echo "$DOCKER_CONF_RAW" | grep 'password: "' | cut -d '"' -f 2)
 
 VERSION=""
-VERSION=$(grep 'cordaVersion:' $DIR/../helm/values.yaml | cut -d '"' -f 2 | tr '[:upper:]' '[:lower:]')
+VERSION=$(grep 'cordaVersion:' $DIR/../helm/values/templates/values-template.yml | cut -d '"' -f 2 | tr '[:upper:]' '[:lower:]')
 HEALTH_CHECK_VERSION=$VERSION
 
 CORDA_VERSION="corda-ent-$VERSION"

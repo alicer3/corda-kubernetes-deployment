@@ -59,11 +59,11 @@ config:
   # containerRegistry defines the Container Registry options
   containerRegistry: 
     # serverAddress is the name of the server that corresponds with the Container Registry
-    serverAddress: "contourdeployment.azurecr.io" # "kubernetesplaygroundacr.azurecr.io"
+    serverAddress: "acrcoadjute.azurecr.io" # "kubernetesplaygroundacr.azurecr.io"
     # username is the username for the Container Registry access
-    username: "contourdeployment" # "KubernetesPlaygroundACR"
+    username: "acrcoadjute" # "KubernetesPlaygroundACR"
     # password is the password for the Container Registry access
-    password: "dbbRVD+hlsbmAosa1BRfkJrfqQ9gFVpY" # "doSYUlAyUgoJHsaLABwXwr+0OaDsttEV"
+    password: "Fo1/ADlNqJ1uZakhUnX71DfTFCkX9ouI" # "doSYUlAyUgoJHsaLABwXwr+0OaDsttEV"
     # email is the email address corresponding to the Container Registry
     email: "alice.guo@r3.com"
   # artifactoryR3 defines the options for accessing R3 Artifactory https://software.r3.com/ to download binaries (Corda Enterprise, Corda Firewall, Corda Health Survey Tool, etc.)
@@ -77,6 +77,7 @@ config:
   # floatLoadBalancerIP defines the public / private IP address (NOTE: DNS name is not allowed) for the Kubernetes Cluster on which there will be an ingress to the Corda Firewalls Float endpoint
   floatLoadBalancerIP: ""
   databaseLoadBalancerIP: "{{ .Values.databasePublicIP }}"
+  nodepoolResourceGroup: "MC_ps-rg-coadjute-dev_aks-coadjute_uksouth"
   # storage defines the Storage options
   storage:
     # resourceName defines the Kubernetes resource Name to use for this resource
@@ -98,9 +99,9 @@ config:
       skuName: "Standard_LRS"
       # skuName defines the  Azure specific location
       location: "westeurope"
-      azureStorageAccountName: "kubernetesplaygroundfs"
+      azureStorageAccountName: "storageaccountcoadjute"
       # azureStorageAccountKey is only used if provisioner = azure-file, it determines the Azure storage account key
-      azureStorageAccountKey: "R/6HJWnhIbIOp7Z+Axdc6hVPUbI0NmbrazXfsyO5Oja5ao32QmXQx0l8bAgUKIyFed4LtPB6dyUjWEUvumOWNQ=="
+      azureStorageAccountKey: "qLntvkds21MA+VqO9mSJmQ266iBZVCKCK1xle0XUVv+wr7+e6YTCBgzVfBzC2WYm4c4zpMktqtIuFqCcdIcTWw=="
     # awsEBS defines the AWS EBS specific storage options, only used if it is enabled
     awsEBS:
       # enabled is a boolean value for the above parameter

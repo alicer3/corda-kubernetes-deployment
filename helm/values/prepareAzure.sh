@@ -3,15 +3,12 @@
 set -eu
 DIR="."
 
-PREFIX="alice-guo-node-4"
-X500NAME="O=K8s Alice Node4,L=London,C=GB"
+PREFIX="node-1"
+X500NAME="O=Node1,L=London,C=GB"
 
 # node static IP and DB static IP will be automatically retrieved after public IP addresses created
 NODEIP=""
 DBIP=""
-
-# the resource group of kubenetes node pool
-RESOURCE_GROUP="KubernetesPlayground-NodePool"
 
 GetPathToCurrentlyExecutingScript () {
 	# Absolute path of this script, e.g. /opt/corda/node/foo.sh
@@ -53,6 +50,7 @@ GetPathToCurrentlyExecutingScript
 prepareFileShareAndPublicIP() {
   ACCOUNT_KEY=$(grep -A 100 'config:' $DIR/templates/values-template.yml | grep 'azureStorageAccountKey: "' | cut -d '"' -f 2)
   ACCOUNT_NAME=$(grep -A 100 'config:' $DIR/templates/values-template.yml | grep 'azureStorageAccountName: "' | cut -d '"' -f 2)
+  RESOURCE_GROUP=$(grep -A 100 'config:' $DIR/templates/values-template.yml | grep 'nodepoolResourceGroup: "' | cut -d '"' -f 2)
   FILESHARE=$PREFIX
 
   echo "Creating fileshare..."
@@ -78,12 +76,6 @@ prepareFileShareAndPublicIP() {
   --share-name $FILESHARE \
   --name "cordapps" \
   --output none
-
-  echo "Uploading cordapps..."
-  az storage file upload-batch --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME \
-  --destination "https://$ACCOUNT_NAME.file.core.windows.net/$FILESHARE" --source $DIR/../files/cordapps/ \
-  --destination-path cordapps --pattern '*.jar'
-
 
   echo "Creating public IP for node and DB..."
   az network public-ip create -g $RESOURCE_GROUP -n "$PREFIX-ip" --dns-name "$PREFIX-ip" --allocation-method Static --sku Basic
