@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.config.resourceName }}-api-svc
+  labels:
+    app: {{ .Values.config.resourceName }}-api-svc
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+  selector:
+    app: {{ .Values.config.resourceName }}-api
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.resourceName }}-api
+  labels:
+    app: {{ .Values.config.resourceName }}-api
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.config.resourceName }}-api
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.resourceName }}-api
+    spec:
+      containers:
+        - name: {{ .Values.config.resourceName }}-api
+          image: neilpeterson/aks-helloworld:v1 #{{ .Values.config.containerRegistry.serverAddress }}/{{ printf .Values.apiconfig.dockerImageSprintboot (.Values.apiconfig.apiVersion | lower) }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: TITLE
+              value: "Welcome to {{ .Values.config.resourceName }}"

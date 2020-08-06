@@ -43,15 +43,20 @@ setup:
   # Please also configure the storage options to match your intended cloud provider solution (for example if using gcp as cloud provider, disable azureFile and enable gcpPD storage)
   cloudProvider: "azure"
 
+apiconfig:
+  dockerImageSprintboot: "sprintboot_%s:v1.00"
+  apiVersion: "{{ .Values.apiVersion }}"
+  sprintbootIP: "{{ .Values.sbPublicIP }}"
+  sprintbootDNS: "{{ .Values.sbaddress }}"
 # config defines the options that relate to the deployment but not specifically to the Corda Node
 config:
   # namespace defines the Kubernetes namespace that all resources will be deployed to
-  namespace: "alice-guo"
+  namespace: "{{ .Values.namespace }}"
   # resourceName defines the Kubernetes resource Name that all resources will share (with some added extensions to differentiate the different resources)
   # Does not need editing unless deploying multiple nodes in the same cluster which should use unique resource names
   resourceName: "{{ .Values.resourceName }}"
   # environment setting, either "dev" or "qa"
-  env: "dev"
+  env: "{{ .Values.env }}"
   # dockerImageNode defines the Docker Image we will be deploying for the Corda Node
   dockerImageNode: "corda_image_ent_%s:v1.00"
   # dockerImageFirewall defines the Docker Image we will be deploying for the Corda Firewall
@@ -59,25 +64,19 @@ config:
   # containerRegistry defines the Container Registry options
   containerRegistry: 
     # serverAddress is the name of the server that corresponds with the Container Registry
-    serverAddress: "acrcoadjute.azurecr.io" # "kubernetesplaygroundacr.azurecr.io"
+    serverAddress: "{{ .Values.acraddress }}" # "kubernetesplaygroundacr.azurecr.io"
     # username is the username for the Container Registry access
-    username: "acrcoadjute" # "KubernetesPlaygroundACR"
+    username: "{{ .Values.acrusername }}" # "KubernetesPlaygroundACR"
     # password is the password for the Container Registry access
-    password: "Fo1/ADlNqJ1uZakhUnX71DfTFCkX9ouI" # "doSYUlAyUgoJHsaLABwXwr+0OaDsttEV"
+    password: "{{ .Values.acrpassword }}" # "doSYUlAyUgoJHsaLABwXwr+0OaDsttEV"
     # email is the email address corresponding to the Container Registry
     email: "alice.guo@r3.com"
-  # artifactoryR3 defines the options for accessing R3 Artifactory https://software.r3.com/ to download binaries (Corda Enterprise, Corda Firewall, Corda Health Survey Tool, etc.)
-  artifactoryR3: 
-    # artifactory_username is the username for the R3 Artifactory
-    artifactory_username: "alice.guo"
-    # artifactory_password is the password for the R3 Artifactory
-    artifactory_password: "gege1992"
   # nodeLoadBalancerIP defines the public / private IP address (NOTE: DNS name is not allowed) for the Kubernetes Cluster on which there will be an ingress to the Corda Nodes RPC endpoint
   nodeLoadBalancerIP: "{{ .Values.nodePublicIP }}"
   # floatLoadBalancerIP defines the public / private IP address (NOTE: DNS name is not allowed) for the Kubernetes Cluster on which there will be an ingress to the Corda Firewalls Float endpoint
   floatLoadBalancerIP: ""
   databaseLoadBalancerIP: "{{ .Values.databasePublicIP }}"
-  nodepoolResourceGroup: "MC_ps-rg-coadjute-dev_aks-coadjute_uksouth"
+  nodepoolResourceGroup: "{{ .Values.nodepoolrg }}"
   # storage defines the Storage options
   storage:
     # resourceName defines the Kubernetes resource Name to use for this resource
@@ -99,9 +98,9 @@ config:
       skuName: "Standard_LRS"
       # skuName defines the  Azure specific location
       location: "westeurope"
-      azureStorageAccountName: "storageaccountcoadjute"
+      azureStorageAccountName: "{{ .Values.storageAccountName }}"
       # azureStorageAccountKey is only used if provisioner = azure-file, it determines the Azure storage account key
-      azureStorageAccountKey: "qLntvkds21MA+VqO9mSJmQ266iBZVCKCK1xle0XUVv+wr7+e6YTCBgzVfBzC2WYm4c4zpMktqtIuFqCcdIcTWw=="
+      azureStorageAccountKey: "{{ .Values.storageAccountKey }}"
     # awsEBS defines the AWS EBS specific storage options, only used if it is enabled
     awsEBS:
       # enabled is a boolean value for the above parameter
@@ -187,15 +186,15 @@ corda:
       floatInternalAddress: "" # Address that the Bridge service will connect to, if empty uses the public p2p address (above)
       # identityManagerAddress defines the accesspoint for the Identity Manager server (protocol + domain name + port, eg. http://my-identity-manager:1000)
         # identityManagerAddress defines the accesspoint for the Identity Manager server (public domain name+port)
-      identityManagerAddress: "http://20.195.17.127:10000"
+      identityManagerAddress: "{{ .Values.identityManagerURL }}"
         # networkmapAddress defines the accesspoint for the Network Map server (public domain name+port)
-      networkmapAddress: "http://20.195.17.171:10000"
+      networkmapAddress: "{{ .Values.networkMapURL }}"
       # compatibilityZoneEnabled defines if you are connecting to a compatibility zone rather than using the above identityManagerAddress+networkmapAddress. Set this to true to be able to join Corda Testnet along with compatibilityZoneURL
       compatibilityZoneEnabled: false
       # compatibilityZoneURL defines the root address of Corda compatibility zone network management services. For Corda Testnet you can use "https://netmap.testnet.r3.com"
       compatibilityZoneURL: ""
       # networkRootTruststorePassword defines the password with which to unlock the network root truststore file usually named 'networkRootTrustStore.jks'
-      networkRootTruststorePassword: "trust-store-password"
+      networkRootTruststorePassword: "{{ .Values.networkTruststorePass }}"
       # keystorePassword defines the password with which to unlock the Node keystore file, usually named "nodekeystore.jks". This value will also end up in the "bridge.conf" file
       keystorePassword: "cordacadevpass"
       # truststorePassword defines the password with which to unlock the Node truststore file, usually named "truststore.jks". This value will also end up in the "bridge.conf" file

@@ -6,6 +6,7 @@ NC='\033[0m' # No Color
 
 set -u
 DIR="."
+
 GetPathToCurrentlyExecutingScript () {
 	SCRIPT_SRC=""
 	set +u
@@ -49,6 +50,8 @@ GetPathToCurrentlyExecutingScript () {
 }
 GetPathToCurrentlyExecutingScript
 set -eu
+
+. $DIR/../helm/variables.sh
 
 DOCKER_CMD='docker'
 EnsureDockerIsAvailableAndReachable () {
@@ -94,6 +97,8 @@ DOCKER_PASSWORD=$(echo "$DOCKER_CONF_RAW" | grep 'password: "' | cut -d '"' -f 2
 VERSION=""
 VERSION=$(grep 'cordaVersion:' $DIR/../helm/values/templates/values-template.yml | cut -d '"' -f 2 | tr '[:upper:]' '[:lower:]')
 HEALTH_CHECK_VERSION=$VERSION
+API_IMAGE=$(grep -A 10 'apiconfig:' $DIR/../helm/values.yaml | grep 'dockerImageSprintboot: "' | cut -d '"' -f 2)
+
 
 CORDA_VERSION="corda-ent-$VERSION"
 CORDA_IMAGE_PATH="corda_image_ent"
@@ -102,5 +107,9 @@ CORDA_DOCKER_IMAGE_VERSION="v1.00"
 CORDA_FIREWALL_VERSION="corda-firewall-$VERSION"
 CORDA_FIREWALL_IMAGE_PATH="corda_image_firewall"
 FIREWALL_DOCKER_IMAGE_VERSION="v1.00"
+
+SPRINTBOOT_API_VERSION="api-$APIVERSION"
+SPRINTBOOT_PATH="sprintboot"
+SPRINTBOOT_IMAGE_VERSION="v1.00"
 
 CORDA_HEALTH_CHECK_VERSION="corda-tools-health-survey-$HEALTH_CHECK_VERSION"

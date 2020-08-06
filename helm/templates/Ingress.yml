@@ -1,0 +1,26 @@
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Values.config.resourceName }}-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  labels:
+    app: {{ .Values.config.resourceName }}-ingress
+    group: {{ .Values.config.resourceName }}
+    env: {{ .Values.config.env }}
+spec:
+  tls:
+    - hosts:
+        - {{ .Values.apiconfig.sprintbootDNS }}
+      secretName: tls-secret
+  rules:
+    - host: {{ .Values.apiconfig.sprintbootDNS }}
+      http:
+        paths:
+          - backend:
+              serviceName: {{ .Values.config.resourceName }}-api-svc
+              servicePort: 80
+            path: /{{ .Values.config.resourceName }}(/|$)(.*)

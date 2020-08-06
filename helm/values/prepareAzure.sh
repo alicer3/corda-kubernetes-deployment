@@ -3,9 +3,6 @@
 set -eu
 DIR="."
 
-PREFIX="node-1"
-X500NAME="O=Node1,L=London,C=GB"
-
 # node static IP and DB static IP will be automatically retrieved after public IP addresses created
 NODEIP=""
 DBIP=""
@@ -47,39 +44,38 @@ GetPathToCurrentlyExecutingScript () {
 }
 GetPathToCurrentlyExecutingScript
 
+. $DIR/../variables.sh
+
 prepareFileShareAndPublicIP() {
-  ACCOUNT_KEY=$(grep -A 100 'config:' $DIR/templates/values-template.yml | grep 'azureStorageAccountKey: "' | cut -d '"' -f 2)
-  ACCOUNT_NAME=$(grep -A 100 'config:' $DIR/templates/values-template.yml | grep 'azureStorageAccountName: "' | cut -d '"' -f 2)
-  RESOURCE_GROUP=$(grep -A 100 'config:' $DIR/templates/values-template.yml | grep 'nodepoolResourceGroup: "' | cut -d '"' -f 2)
   FILESHARE=$PREFIX
 
   echo "Creating fileshare..."
   az storage share create \
-      --account-name $ACCOUNT_NAME \
-      --account-key $ACCOUNT_KEY \
+      --account-name $ASA_NAME \
+      --account-key $ASA_KEY \
       --name $FILESHARE \
       --quota 2 --output none
 
   echo "Creating drivers directory in fileshare..."
   az storage directory create \
-  --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME\
+  --account-key $ASA_KEY --account-name $ASA_NAME\
   --share-name $FILESHARE \
   --name "drivers" \
   --output none
 
   echo "Uploading drivers..."
-  az storage file upload --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME --path drivers --share-name $FILESHARE --source $DIR/../../docker-images/bin/db_drivers/postgresql-42.2.14.jar
+  az storage file upload --account-key $ASA_KEY --account-name $ASA_NAME --path drivers --share-name $FILESHARE --source $DIR/../../docker-images/bin/db_drivers/postgresql-42.2.14.jar
 
   echo "Creating cordapp directory in fileshare..."
   az storage directory create \
-  --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME\
+  --account-key $ASA_KEY --account-name $ASA_NAME\
   --share-name $FILESHARE \
   --name "cordapps" \
   --output none
 
-  echo "Creating public IP for node and DB..."
-  az network public-ip create -g $RESOURCE_GROUP -n "$PREFIX-ip" --dns-name "$PREFIX-ip" --allocation-method Static --sku Basic
-  az network public-ip create -g $RESOURCE_GROUP -n "$PREFIX-database-ip" --dns-name "$PREFIX-database-ip" --allocation-method Static --sku Basic
+  echo "Creating public IP for node, DB..."
+  az network public-ip create -g $NODEPOOL_RG -n "$PREFIX-ip" --dns-name "$PREFIX-ip" --allocation-method Static --sku Standard
+  az network public-ip create -g $NODEPOOL_RG -n "$PREFIX-database-ip" --dns-name "$PREFIX-database-ip" --allocation-method Static --sku Standard
 
 }
 
@@ -88,24 +84,43 @@ prepareFileShareAndPublicIP
 # define variables -> create azure resources -> retrieve IPs -> generate values.yaml
 generateValuesYml() {
 
-  NODEIP=$(az network public-ip show -g $RESOURCE_GROUP -n "$PREFIX-ip" |grep ipAddress |cut -d '"' -f 4)
-  DBIP=$(az network public-ip show -g $RESOURCE_GROUP -n "$PREFIX-database-ip" |grep ipAddress |cut -d '"' -f 4)
+  NODEIP=$(az network public-ip show -g $NODEPOOL_RG -n "$PREFIX-ip" |grep ipAddress |cut -d '"' -f 4)
+  DBIP=$(az network public-ip show -g $NODEPOOL_RG -n "$PREFIX-database-ip" |grep ipAddress |cut -d '"' -f 4)
+  INGRESS_IP=$(az network public-ip show -g $NODEPOOL_RG -n "$NAMESPACE-ingress-ip" |grep ipAddress |cut -d '"' -f 4)
   echo "node public IP = $NODEIP"
   echo "node db public IP = $DBIP"
+  echo "ingress public IP = $INGRESS_IP"
 
   echo "  fileshare: \"$PREFIX\"
   nodePublicIP: \"$NODEIP\"
   databasePublicIP: \"$DBIP\"
+  sbPublicIP: \"$INGRESS_IP\"
+  sbaddress: \"$NAMESPACE-ip.uksouth.cloudapp.azure.com\"
   resourceName: \"$PREFIX\"
   storageResourceName: \"$PREFIX-storage\"
   p2paddress: \"$PREFIX-ip.uksouth.cloudapp.azure.com\"
   dbaddress: \"$PREFIX-database-ip.uksouth.cloudapp.azure.com\"
-  x500Name: \"$X500NAME\"" > $DIR/input.yaml
+  x500Name: \"$X500NAME\"
+  apiVersion: \"$APIVERSION\"
+  namespace: \"$NAMESPACE\"
+  env: \"$ENV\"
+  acraddress: \"$ACR_ADDRESS\"
+  acrusername: \"$ACR_USERNAME\"
+  acrpassword: \"$ACR_USERNAME\"
+  nodepoolrg: \"$NODEPOOL_RG\"
+  storageAccountName: \"$ASA_NAME\"
+  storageAccountKey: \"$ASA_KEY\"
+  identityManagerURL: \"$IM_ADDRESS\"
+  networkMapURL: \"$NM_ADDRESS\"
+  networkTruststorePass: \"$NETWORK_TRUSTSTORE_PASSWORD\"
+  " > $DIR/input.yaml
 
   helm template $DIR -f $DIR/input.yaml --output-dir $DIR/output
 
   cp $DIR/output/corda/templates/values-template.yml $DIR/../files/values/$PREFIX.yaml
   cp $DIR/output/corda/templates/values-template.yml $DIR/../values.yaml
+
+  rm $DIR/input.yaml
 }
 
 generateValuesYml

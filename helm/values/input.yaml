@@ -1,8 +1,0 @@
-  fileshare: "alice-guo-node-4"
-  nodePublicIP: "51.11.151.141"
-  databasePublicIP: "51.132.252.221"
-  resourceName: "alice-guo-node-4"
-  storageResourceName: "alice-guo-node-4-storage"
-  p2paddress: "alice-guo-node-4-ip.uksouth.cloudapp.azure.com"
-  dbaddress: "alice-guo-node-4-database-ip.uksouth.cloudapp.azure.com"
-  x500Name: "O=K8s Alice Node4,L=London,C=GB"
