@@ -11,25 +11,25 @@ spec:
   type: LoadBalancer
   selector:
     app: {{ .Values.config.resourceName }}-node
-    node: {{ .Values.config.resourceName }}
+    group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
   ports:
-{{- if not .Values.setup.cordaFirewall.enabled }}
-  - name: p2p
-    protocol: TCP
-    port: {{ .Values.corda.node.conf.p2pPort }}
-    targetPort: {{ .Values.corda.node.conf.p2pPort }}
-{{- end }}
-  - name: rpc
-    protocol: TCP
-    port: {{ .Values.corda.node.conf.rpc.port }}
-    targetPort: {{ .Values.corda.node.conf.rpc.port }}
-{{- if .Values.corda.node.conf.ssh.enabled }}
-  - name: ssh
-    protocol: TCP
-    port: {{ .Values.corda.node.conf.ssh.sshdPort }}
-    targetPort: {{ .Values.corda.node.conf.ssh.sshdPort }}
-{{- end }}
+  {{- if not .Values.setup.cordaFirewall.enabled }}
+    - name: p2p
+      protocol: "TCP"
+      port: {{ .Values.corda.node.conf.p2pPort }}
+      targetPort: {{ .Values.corda.node.conf.p2pPort }}
+  {{- end }}
+    - name: rpc
+      protocol: "TCP"
+      port: {{ .Values.corda.node.conf.rpc.port }}
+      targetPort: {{ .Values.corda.node.conf.rpc.port }}
+  {{- if .Values.corda.node.conf.ssh.enabled }}
+    - name: ssh
+      protocol: "TCP"
+      port: {{ .Values.corda.node.conf.ssh.sshdPort }}
+      targetPort: {{ .Values.corda.node.conf.ssh.sshdPort }}
+  {{- end }}
 ---
 {{- if .Values.setup.cordaFirewall.enabled }}
 kind: Service
@@ -105,11 +105,11 @@ spec:
             memory: "2Gi"
             cpu: "1000m"
         ports:
-        - containerPort: {{ .Values.corda.node.conf.p2pPort }}
-        - containerPort: {{ .Values.corda.node.conf.rpc.port }}
-{{- if .Values.corda.node.conf.ssh.enabled }}
-        - containerPort: {{ .Values.corda.node.conf.ssh.sshdPort }}
-{{- end }}
+          - containerPort: {{ .Values.corda.node.conf.p2pPort }}
+          - containerPort: {{ .Values.corda.node.conf.rpc.port }}
+  {{- if .Values.corda.node.conf.ssh.enabled }}
+          - containerPort: {{ .Values.corda.node.conf.ssh.sshdPort }}
+  {{- end }}
         volumeMounts:
         - mountPath: "/opt/corda/workspace"
           name: {{ .Values.config.resourceName }}-pv
