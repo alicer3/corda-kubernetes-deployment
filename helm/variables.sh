@@ -1,8 +1,8 @@
 #!/bin/bash
 
 ######################## NODE VARIBLES START ########################
-PREFIX="node-2"
-X500NAME="O=Node2,L=London,C=GB"
+PREFIX="node-5"
+X500NAME="O=Node5,L=London,C=GB"
 APIVERSION="2"
 ######################## NODE VARIBLES END ########################
 
@@ -20,7 +20,7 @@ ASA_NAME="storageaccountcoadjute" #storageAccountName
 ASA_KEY="x/s5jAWvl0W/23ho6EihOGDtGK5iYxd5Ieon4u82KJ+tVWCSGv0vINxvwwyct1Y9XsbNkKk1MtqEJq78l9Jp3Q==" #storageAccountKey
 
 # Network Info
-IM_ADDRESS="http://20.195.17.127:10000" #identityManagerURL
-NM_ADDRESS="http://20.195.17.171:10000" #networkMapURL
+IM_ADDRESS="http://20.49.235.0:10000" #identityManagerURL
+NM_ADDRESS="http://20.49.233.34:10000" #networkMapURL
 NETWORK_TRUSTSTORE_PASSWORD="trust-store-password" #networkTruststorePass
 ######################## ENV VARIBLES END ########################

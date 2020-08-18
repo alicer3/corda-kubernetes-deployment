@@ -12,3 +12,5 @@ corda-pki-generator/pki-firewall/certs
 *.crl
 .idea/*
 helm/files/values/*
+*.log
+

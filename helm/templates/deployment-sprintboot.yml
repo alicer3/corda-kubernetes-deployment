@@ -31,6 +31,7 @@ spec:
     metadata:
       labels:
         app: {{ .Values.config.resourceName }}-api
+        group: {{ .Values.config.resourceName }}
     spec:
       containers:
         - name: {{ .Values.config.resourceName }}-api

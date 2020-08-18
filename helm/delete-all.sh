@@ -72,7 +72,8 @@ DeleteIngressResource() {
   helm del --purge nginx-ingress
   helm del --purge cert-manager
 
-  kubectl delete -f https://github.com/jetstack/cert-manager/releases/download/v0.16.0/cert-manager.crds.yaml --namespace $CERT_NS
+  # kubectl delete -f https://github.com/jetstack/cert-manager/releases/download/v0.16.0/cert-manager.crds.yaml --namespace $CERT_NS
+  kubectl delete -f cert-manager.crds.yaml --namespace $CERT_NS
   kubectl delete namespace $CERT_NS
   az network public-ip delete -g $NODEPOOL_RG -n "$NAMESPACE-ingress-ip"
 

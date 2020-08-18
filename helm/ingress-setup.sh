@@ -29,7 +29,8 @@ IngressSetup() {
   # install cert manager
 
   kubectl label namespace $CERT_NS cert-manager.io/disable-validation=true
-  kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.16.0/cert-manager.crds.yaml
+  # kill the process after 10min
+  timeout -k 10 600 kubectl apply --validate=false -f cert-manager.crds.yaml #https://github.com/jetstack/cert-manager/releases/download/v0.16.0/cert-manager.crds.yaml
 
   helm install \
   --name cert-manager \
