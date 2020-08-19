@@ -132,7 +132,7 @@ downloadBinaries () {
 		echo "wget is not installed. You need to install it in order to download the binaries using this script. You may also download them manually."
 		echo "Manual download instructions, please download the following links and save as the name suggests:"
 		echo "docker-images/bin/$CORDA_VERSION.jar = $CORDA_DOWNLOAD_URL"
-		echo "docker-images/bin/$CORDA_FIREWALL_VERSION.jar = $CORDA_FIREWALL_DOWNLOAD_URL"
+#		echo "docker-images/bin/$CORDA_FIREWALL_VERSION.jar = $CORDA_FIREWALL_DOWNLOAD_URL"
 		echo "docker-images/bin/$CORDA_HEALTH_CHECK_VERSION.jar = $CORDA_HEALTH_CHECK_DOWNLOAD_URL"
 		echo "docker-images/bin/corda-finance-workflows-${VERSION}.jar = $CORDA_FINANCE_WORKFLOWS_DOWNLOAD_URL"
 		echo "docker-images/bin/corda-finance-contracts-${VERSION}.jar = $CORDA_FINANCE_CONTRACT_DOWNLOAD_URL"
@@ -145,12 +145,12 @@ downloadBinaries () {
 		echo "$CORDA_VERSION.jar already downloaded."
 	fi
 
-	if [ ! -f "$CORDA_FIREWALL_VERSION.jar" ]; then
-		wgetDownload $CORDA_FIREWALL_VERSION.jar "$CORDA_FIREWALL_DOWNLOAD_URL"
-		checkStatus $?
-	else
-		echo "$CORDA_FIREWALL_VERSION.jar already downloaded."
-	fi
+#	if [ ! -f "$CORDA_FIREWALL_VERSION.jar" ]; then
+#		wgetDownload $CORDA_FIREWALL_VERSION.jar "$CORDA_FIREWALL_DOWNLOAD_URL"
+#		checkStatus $?
+#	else
+#		echo "$CORDA_FIREWALL_VERSION.jar already downloaded."
+#	fi
 
 	if [ ! -f "$CORDA_HEALTH_CHECK_VERSION.jar" ]; then
 		wgetDownload $CORDA_HEALTH_CHECK_VERSION.jar "$CORDA_HEALTH_CHECK_DOWNLOAD_URL"
@@ -173,14 +173,14 @@ downloadBinaries () {
 		echo "corda-finance-contracts-${VERSION}.jar already downloaded."
 	fi
 	
-	if [ ! -f apache-artemis-2.6.4-bin.tar.gz ]
-		then
-			echoMessage "Downloading apache-artemis-2.6.4-bin.tar.gz..."
-			curl -sSL https://www.apache.org/dist/activemq/activemq-artemis/2.6.4/apache-artemis-2.6.4-bin.tar.gz -o apache-artemis-2.6.4-bin.tar.gz
-			#tar xzf apache-artemis-2.6.4-bin.tar.gz
-		else
-			echo "apache-artemis-2.6.4-bin.tar.gz already downloaded."
-	fi
+#	if [ ! -f apache-artemis-2.6.4-bin.tar.gz ]
+#		then
+#			echoMessage "Downloading apache-artemis-2.6.4-bin.tar.gz..."
+#			curl -sSL https://www.apache.org/dist/activemq/activemq-artemis/2.6.4/apache-artemis-2.6.4-bin.tar.gz -o apache-artemis-2.6.4-bin.tar.gz
+#			#tar xzf apache-artemis-2.6.4-bin.tar.gz
+#		else
+#			echo "apache-artemis-2.6.4-bin.tar.gz already downloaded."
+#	fi
 	
 	if [ ! -f db_drivers/mssql-jdbc-7.2.0.jre8.jar ]
 		then

@@ -8,6 +8,7 @@ The scripts we will be using are as follows:
 - ``download_binaries.sh``, downloads the required Corda binaries (as specified in values.yaml, cordaVersion)
 - ``build_docker_images.sh``, this script will compile the Docker images based on the Docker files and necessary binaries
 - ``push_docker_images.sh``, this script will push the local Docker images to a remote repository, the Container Registry. Please note that your Kubernetes Cluster should have access to the Container Registry, please see root README.md for more information
+- ``handle_sprintboot_image.sh``, this script will compile and push Docker image for sprintboot app
 
 ## PREREQUISITES
 

@@ -1,26 +1,11 @@
 # CORDA KUBERNETES DEPLOYMENT
 
-This repository (<https://github.com/corda/corda-kubernetes-deployment>) contains the means with which you can stand up a [Corda Enterprise](https://www.r3.com/corda-platform/) Node.
+This repository (https://github.com/alicer3/corda-kubernetes-deployment) helps you with full set deployment in Kubernetes, including CE nodes, Postgres DB and Sprintboot Application.
 
-This is meant to be a customizable version of the Node deployment that you can take as-is if it fits your needs or then customize it to your liking.
+This is meant to build Corda Managed Service Dev/QA environment for Coadjute.
 
-**DISCLAIMER:**
+This repository is based on <https://github.com/corda/corda-kubernetes-deployment>
 
-This Kubernetes deployment for a Corda Enterprise Node is considered a **reference implementation** and should not be used in a production environment until sufficient testing has been done.
-
-Licensed under [Apache License, version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
-
----
-
-## IMPORTANT
-
-Kubernetes is a complex system and setting up a successful deployment for the first time can be challenging as well.
-
-Please make sure you step through the [SETUP CHECKLIST](#setup-checklist) section carefully the first time you deploy, to avoid problems down the road.
-
-Additional information on setup and usage of this Corda Kubernetes Deployment can be found on the [Corda Solutions Docs](https://solutions.corda.net/deployment/kubernetes/intro.html) site.
-
-It is strongly recommended you review the documentation there before setting this up for the first time to familiarize yourself with the topic at hand.
 
 ---
 
@@ -28,42 +13,92 @@ It is strongly recommended you review the documentation there before setting thi
 
 Since there are a number of prerequisites that need to be met and then a certain order of running everything, a checklist has been collated that you may find useful.
 
-Please see [CHECKLIST.md](CHECKLIST.md) for more information.
+Please see [PREPARATION.md](PREPARATION.md) for the checklist.
 
 **Note!**
 It is strongly recommended you follow the CHECKLIST, to not skip an important step, especially the first time you set up this deployment,
 
 ---
 
-## PREREQUISITES
+## OPERATION
 
-* A cloud environment with Kubernetes Cluster Services that has access to a Docker Container Registry, see [CLOUD_SETUP.md](CLOUD_SETUP.md)
-* Building the images requires local [Docker](https://www.docker.com/) installation
-* [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) is used to manage Kubernetes cluster
-* [Helm](https://helm.sh/) version 2.x
-* Access to Corda Enterprise binary files or access to R3 Artifactory for Enterprise (licensed users)
+The operation side consists of few aspects. 
+- one-time setup: environment configuration, docker image preparation for later deployment and Ingress Controller (shared by the whole environment) deployment
+- per node deployment: deploy a node, its database and upper layer sprintboot application in different scenarios
+- deletion: how to delete the deployments
+- per node modification: 
+
+### ONE-TIME SETUP
+#### Environment Initialisation 
+- `az login`, make sure at this point that if you have many subscriptions, that the one you want to use has isDefault=true, if not use "az account list" and "az account set -s <subscription id>" to fix it
+- `az aks get-credentials --resource-group <Resource Group Name> --name <AKS Name>` # get the info based on the Azure preparation 
+- `kubectl create namespace <name>` # for dev, the namespace would be "coadjute-dev"; for QA, it will be "coadjute-qa". It should be consistent with `variables.sh`.
+- `kubectl config set-context --current --namespace <name>` # set kubectl context
+
+#### Docker Image
+Before building docker images, you need to make sure you have all the binaries ready.
+- `cd docker-images`
+- CE image:
+    - run `build_docker_images.sh`
+    - run `push_docker_images.sh`
+- Sprintboot image:
+    - run `handle_sprintboot_image.sh`
+
+#### Ingress Controller
+The Ingress Controller deployment is shared by all the sprintboot application deployment in the namespace.
+- run `./helm/ingress-setup.sh`
+
+### PER NODE DEPLOYMENT
+- `cd helm`
+- for new node deployment
+    - update the node variables in `variables.sh`
+    - run `./values/prepareAzure.sh`
+    - run `./helm_compile.sh`
+- for an existing node deployment
+    - check in `files/certificates/node/<PREFIX>` to see whether the node certificates exist
+    - check in `files/values/` to see whether `<PREFIX>.yaml` exists
+    - check whether the Azure resources (file shares and public IPs) still there
+    - run `cp files/values/<PREFIX>.yaml ./values.yaml`
+    - run `./helm_compile.sh`
+
+### Sanity Check
+- `cd helm`
+- run `./sanity-check.sh`
+
+### DELETION
+- `cd helm`
+- run `./delete-all.sh`. And choice the option that suits the needs
 
 ---
+## EXPLANATION
+Explanation on main components
+- Docker images: All Docker images are pushed to Azure Container Registry for later deployment.
+    - CE images are node images without cordapp installation used for CE node deployment
+    - sprintboot images are image with sprintboot application inside. Thus a new sprintboot image needs to be built and pushed whenever a new version of sprintboot application is published. `APIVERSION` is used to identify sprintboot application version.
 
-## TESTED WITH
-
-This deployment has been tested and verified with the following information: [SUPPORT_MATRIX.md](SUPPORT_MATRIX.md)
-
+    
 ---
+## TO-DOS
+- optimization for operation
+    - partial re-deployment of node
+        - redeploy node only with new cordapps
+        - redeploy sprintboot application only
+        - redeploy node and database
+        - redeploy node and sprintboot application
+        - redeploy all deployments
+    - batch deployment of nodes
+- Log expose: how to expose the logs in real time fashion
+---
+## APPENDIX
+### BINARIES
 
-## BINARIES
-
-This deployment is targeting an Enterprise deployment, which should include a Corda Node, but also the Corda Firewall, which is an Enterprise only feature.
+This deployment is targeting an Enterprise deployment, which should include a Corda Node and Postgres Database.
 
 In order to execute the following scripts correctly, you will have to have access to the Corda Enterprise binaries.
 
 The files should be downloaded first and placed in the following folder: ``docker-images/bin``
 
 You can use the helper script ``download_binaries.sh`` to download binaries for you, as long as you have the necessary login details available for the R3 Artifactory.
-
-If you have R3 Artifactory access, the download will be automatic as part of the ``one-time-setup.sh`` script, which is the recommended way of performing the first time setup.
-
-Please see [docker-images/README.md](docker-images/README.md) for more information.
 
 ---
 

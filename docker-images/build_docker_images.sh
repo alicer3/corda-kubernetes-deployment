@@ -55,11 +55,10 @@ fi
 
 BuildDockerImages () {
 	echo "====== Building Docker images next ... ====== "
-	if [ ! -f "$DIR/bin/$CORDA_VERSION.jar" -o  ! -f "$DIR/bin/$CORDA_HEALTH_CHECK_VERSION.jar" -o  ! -f "$DIR/bin/$CORDA_FIREWALL_VERSION.jar" ]; then
+	if [ ! -f "$DIR/bin/$CORDA_VERSION.jar" -o  ! -f "$DIR/bin/$CORDA_HEALTH_CHECK_VERSION.jar" ]; then
 		echo -e "${RED}ERROR${NC}"
 		echo "Missing binaries, check that you have the correct files with the correct names in the following folder $DIR/bin"
 		echo "$DIR/bin/$CORDA_VERSION.jar"
-		echo "$DIR/bin/$CORDA_FIREWALL_VERSION.jar"
 		echo "$DIR/bin/$CORDA_HEALTH_CHECK_VERSION.jar"
 		echo "$DIR/bin folder contents:"
 		ls -al $DIR/bin
@@ -75,14 +74,7 @@ BuildDockerImages () {
 	rm corda-tools-health-survey.jar
 	cd ..
 
-	echo "Building Corda Firewall Docker image..."
-	cp $DIR/bin/$CORDA_FIREWALL_VERSION.jar $DIR/$CORDA_FIREWALL_IMAGE_PATH/corda-firewall.jar
-	cd $DIR/$CORDA_FIREWALL_IMAGE_PATH
-	$DOCKER_CMD build -t $CORDA_FIREWALL_IMAGE_PATH:$FIREWALL_DOCKER_IMAGE_VERSION . -f Dockerfile $NO_CACHE
-	rm corda-firewall.jar
-	cd ..
-
-	echo "Listing all images starting with name 'corda_' (you should see at least 2 images, one for Corda Enterprise and one for the Corda firewall):"
+	echo "Listing all images starting with name 'corda_' (you should see at least 1 image for Corda Enterprise):"
 	$DOCKER_CMD images "corda_*"
 	echo "====== Building Docker images completed. ====== "
 }

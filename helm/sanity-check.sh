@@ -41,10 +41,10 @@ deploymentStatusCheck() {
     echo -e "${RED}Number of Pods is abnormal! \nExpected pods: $EXPECTED_POD_NUM\nActual pods: $POD_NUM${NC}" 1>&3
   fi
 
-  if [ "$POD_NUM" -gt 0 && "$POD_NUM" -eq "$RUNNING_POD_NUM" ]; then
+  if [ "$POD_NUM" -gt 0 ] && [ "$POD_NUM" -eq "$RUNNING_POD_NUM" ]; then
     echo -e "${GREEN}All pods are running!${NC}" 1>&3
   else
-    echo -e "${RED}Some pods are not running!${NC}\n" 1>&3
+    echo -e "${RED}Some pods are not running!${NC}" 1>&3
     kubectl get pods -l group=$NODE --no-headers | grep -v Running | tee /dev/fd/3
   fi
   echo "===================== Kubernetes Deployment Check =====================" | tee /dev/fd/3
