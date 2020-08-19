@@ -18,19 +18,9 @@ data:
   ping.sh: |+
 {{ tpl (.Files.Get "files/ping.sh") . | indent 4 }}
   init_database.sql:
-    CREATE TABLE public.todos
-    (
-    id SERIAL PRIMARY KEY,
-    task text NOT NULL,
-    "user" text NOT NULL,
-    due_date date NOT NULL,
-    done boolean NOT NULL DEFAULT FALSE
-    )
-
-    TABLESPACE pg_default;
-
-    ALTER TABLE public.todos
-    OWNER to pguser;
+    CREATE USER viewuser WITH PASSWORD 'CoadjuteDevView';
+    GRANT connect ON database corda TO viewuser;
+    Grant SELECT on all tables in schema public to viewuser;
 binaryData:
   networkRootTrustStore.jks:
 {{ .Files.Get "files/network/networkRootTrustStore.jks" | b64enc | quote | indent 4 }}   
