@@ -89,7 +89,7 @@ main() {
   NODE_IP=$(grep -A 100 'config:' $DIR/values.yaml | grep 'nodeLoadBalancerIP: "' | cut -d '"' -f 2)
   NODE_P2P=$(grep -A 20 'corda:' $DIR/values.yaml | grep 'p2pPort: ' | cut -d ':' -f 2)
   NODE_SSH=$(grep -A 50 'corda:' $DIR/values.yaml | grep 'sshdPort: ' | cut -d ':' -f 2)
-  NODE_RPC=$(grep -A 50 'corda:' $DIR/values.yaml | grep -A -3 'rpc:' | grep 'port: ' | cut -d ":" -f 2)
+  NODE_RPC=$(grep -A 50 'corda:' $DIR/values.yaml | grep -A 3 'rpc:' | grep 'port: ' | cut -d ":" -f 2)
   portConnCheck $NODEDB_IP 5432 "DB connection"
   portConnCheck $NODE_IP $NODE_P2P "Node p2p connection"
   portConnCheck $NODE_IP $NODE_SSH "Node SSH connection"

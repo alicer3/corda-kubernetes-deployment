@@ -1,0 +1,21 @@
+This guide is for quickly enabling you to deploy a node (CE node + DB + sprintboot app).
+
+Get to home folder of root:
+1. sudo su
+2. cd
+3. cd corda-kubernetes-deployment
+
+To deploy a node:
+1. cd helm
+2. update variables.sh
+    i. update PREFIX, which serves as ID of the node. e.g. node1, node2. Do note not to use an existing PREFIX. Checking existing PREFIX in
+    ii. update X500NAME, which is the X500 name of Corda node. If taken, you can update it again and rerun scripts.
+3. run ./values/prepareAzure.sh
+4. run ./helm_compile.sh
+5. run ./sanity-check.sh to check on the deployment
+
+Update Coadjute release:
+1. replace the cordapp in helm/files/cordapps folder
+2. build a new sprintboot docker image for new sprintboot application with the APIVERSION
+
+For full operation guide, refer to README.md.

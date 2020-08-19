@@ -17,6 +17,7 @@ Since there are a number of prerequisites that need to be met and then a certain
 >> - [ ] Azure Kubernetes Cluster for CENM*: the kubernetes cluster for CENM. This is optional cause you can join any other existing network anywhere. And this CENM could be set up without k8s and could be located at other resource group as well.
 >> - [ ] Operation VM*: the VM for operating the environment. This is optional as well. The VM could be located anywhere as long as it could access all the services.
 * Operation VM Setup
+> - [ ] JDK8
 > - [ ] Helm2
 > - [ ] Azure CLI
 > - [ ] kubectl
