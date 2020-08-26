@@ -80,10 +80,11 @@ DeleteIngressResource() {
 }
 
 main() {
+  RESOURCE_NAME=$(grep -A 10 'config:' $DIR/values.yaml | grep 'resourceName: "' | cut -d '"' -f 2)
   printf "${RED}!!!NOTE: the deletion cannot be undone!!!${NC}\n"
   read -p "Select the resources you want to delete:
-  1) kubernetes resources for $PREFIX in $NAMESPACE
-  2) Azure resources for $PREFIX in $NAMESPACE
+  1) kubernetes resources for $RESOURCE_NAME in $NAMESPACE
+  2) Azure resources for $RESOURCE_NAME in $NAMESPACE
   3) 1+2
   4) Ingress kubernetes and Azure resources for $NAMESPACE
   5) all kubernetes resources in the $NAMESPACE
@@ -99,13 +100,13 @@ main() {
   fi
 
   case $selection in
-    "1") printf "${YELLOW}Deleting kubernetes resources for $PREFIX in $NAMESPACE..${NC}\n"
+    "1") printf "${YELLOW}Deleting kubernetes resources for $RESOURCE_NAME in $NAMESPACE..${NC}\n"
          DeleteResourceNameKubernetesResources
          ;;
-    "2") printf "${YELLOW}Deleting Azure resources for $PREFIX in $NAMESPACE..${NC}\n"
+    "2") printf "${YELLOW}Deleting Azure resources for $RESOURCE_NAME in $NAMESPACE..${NC}\n"
          DeleteAzureResources
          ;;
-    "3") printf "${YELLOW}Deleting Azure resources for $PREFIX in $NAMESPACE..${NC}\n"
+    "3") printf "${YELLOW}Deleting Azure resources for $RESOURCE_NAME in $NAMESPACE..${NC}\n"
          DeleteResourceNameKubernetesResources
          Sleep 30
          DeleteAzureResources
