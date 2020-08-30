@@ -7,9 +7,9 @@ This is meant to build Corda Managed Service Dev/QA environment for Coadjute.
 This repository is based on <https://github.com/corda/corda-kubernetes-deployment>
 
 ## Contents
-- [Setup Checklist](#SETUP CHECKLIST): a setup checklist to get the environment ready
-- [Short Operation Guide](#SHORT OPERATION GUIDE): a quickstart guide for operation
-- [Operation Guide](#OPERATION GUIDE): a more comprehensive guide for operation
+- [Setup Checklist](#SETUP-CHECKLIST): a setup checklist to get the environment ready
+- [Short Operation Guide](#SHORT-OPERATION-GUIDE): a quickstart guide for operation
+- [Operation Guide](#OPERATION-GUIDE): a more comprehensive guide for operation
 - [Explanations](#EXPLANATION): explanation on the file structures and key scripts
 - [Todos](#TO-DOS): the to-dos
 - [Feedbacks](#Feedback): any feedback welcome
@@ -25,10 +25,10 @@ Please see [PREPARATION.md](PREPARATION.md) for the checklist.
 It is strongly recommended you follow the CHECKLIST, to not skip an important step, especially the first time you set up this deployment,
 
 ---
-## SHORT OPERATION GUIDE (see [OPERATION](#OPERATION) for a full guide)
+## SHORT OPERATION GUIDE (see [OPERATION](#OPERATION-GUIDE) for a full guide)
 
 ### Before any actual deployments
-Finish all the setup and configuration in [ONE-TIME SETUP](#ONE-TIME SETUP)
+Finish all the setup and configuration in [ONE-TIME SETUP](#ONE-TIME-SETUP)
 
 ### Deploy a new node
 1. update `variables.sh`
@@ -51,11 +51,11 @@ Finish all the setup and configuration in [ONE-TIME SETUP](#ONE-TIME SETUP)
 ## OPERATION GUIDE
 
 The operation side consists of few aspects. 
-- [one-time setup](#ONE-TIME SETUP): environment configuration, docker image preparation for later deployment and Ingress Controller (shared by the whole environment) deployment
-- [per node deployment](#PER NODE DEPLOYMENT): deploy a node, its database and upper layer sprintboot application in different scenarios
+- [one-time setup](#ONE-TIME-SETUP): environment configuration, docker image preparation for later deployment and Ingress Controller (shared by the whole environment) deployment
+- [per node deployment](#PER-NODE-DEPLOYMENT): deploy a node, its database and upper layer sprintboot application in different scenarios
 - [deletion](#DELETION): how to delete the deployments
 - [per node modification](): this is not implemented yet, but it means partial re-deployment. eg. re-deploy the corda node without touching the DB and sprintboot application
-- [useful commands](#USERFUL COMMANDS): useful commands
+- [useful commands](#USERFUL-COMMANDS): useful commands
 
 ### ONE-TIME SETUP
 #### Environment Initialisation 
@@ -85,7 +85,13 @@ Before building docker images, you need to make sure you have all the binaries r
 
 #### Ingress Controller
 The Ingress Controller deployment is shared by all the sprintboot application deployment in the namespace.
-- run `./helm/ingress-setup.sh`
+- run `./helm/env-prep/env-prep.sh`
+- choose option 1
+
+#### Elastic + Kibana
+The Elastic + Kibana deployment is shared by all the node deployments in the namespace. Filebeat will be deployed as a sidecar along with nodes, and feeding logs to ElasticSearch, and finally visualized by Kibana.
+- run `./helm/env-prep/env-prep.sh`
+- choose option 2
 
 ### PER NODE DEPLOYMENT
 - `cd helm`
@@ -119,7 +125,7 @@ The Ingress Controller deployment is shared by all the sprintboot application de
 Explanation on main components
 - Docker images: All Docker images are pushed to Azure Container Registry for later deployment.
     - CE images are node images without cordapp installation used for CE node deployment
-    - sprintboot images are image with sprintboot application inside. Thus a new sprintboot image needs to be built and pushed whenever a new version of sprintboot application is published. `APIVERSION` is used to identify sprintboot application version.
+    - springboot images are image with sprintboot application inside. Thus a new springboot image needs to be built and pushed whenever a new version of sprintboot application is published. `APIVERSION` is used to identify sprintboot application version.
 - Helm
     - files
         - certificates: keeps a copy of node certificates so that the node could be deleted and deployed again

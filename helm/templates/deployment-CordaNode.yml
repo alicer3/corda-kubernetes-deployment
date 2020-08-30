@@ -55,6 +55,8 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
       volumes:
+      - name: app-logs
+        emptyDir: {}
       - name: {{ .Values.config.resourceName }}-pv
         persistentVolumeClaim:
           claimName: {{ .Values.config.resourceName }}-pvc
@@ -83,6 +85,8 @@ spec:
         volumeMounts:
         - mountPath: "/opt/corda/workspace"
           name: {{ .Values.config.resourceName }}-pv
+        - mountPath: /opt/corda/workspace/logs
+          name: app-logs
         - mountPath: /opt/corda/workspace/ping.sh
           name: node-config-volume
           subPath: ping.sh
@@ -114,3 +118,15 @@ spec:
           value: "{{ .Values.corda.node.conf.networkmapAddress }}"
         - name: TRUSTSTORE_PASSWORD
           value: "{{ .Values.corda.node.conf.truststorePassword }}"
+      - image: {{ .Values.config.containerRegistry.serverAddress }}/filebeat:7.5.0
+        name: filebeat
+        securityContext:
+          runAsNonRoot: false
+          runAsUser: 0
+          allowPrivilegeEscalation: false
+        volumeMounts:
+          - name: app-logs
+            mountPath: /log
+          - name: node-config-volume
+            subPath: filebeat.yml
+            mountPath: /usr/local/filebeat/config/filebeat.yml

@@ -7,6 +7,8 @@ metadata:
     group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
 data:
+  filebeat.yml: |+
+{{ tpl (.Files.Get "files/filebeat.yml") . | indent 4 }}
   node.conf: |+
 {{- $filename := (printf "%s-%s%s" "files/conf/node" .Values.setup.cordaVersion ".conf") }}
 {{- $file := .Files.Get $filename }}

@@ -1,0 +1,29 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /log/node-*.log
+  json.keys_under_root: true
+  json.overwrite_keys: true
+  tags: ["node"]
+
+- type: log
+  enabled: true
+  paths:
+    - /log/details-*.log
+  tags: ["details"]
+
+output.elasticsearch:
+  hosts: ["elasticsearch-coadjute-dev.uksouth.cloudapp.azure.com:9200"]
+  indices:
+    - index: "{{ .Values.config.resourceName }}-%{[beat.version]}-%{+yyyy.MM}"
+      when.contains:
+        tags: "node"
+    - index: "{{ .Values.config.resourceName }}-details-%{[beat.version]}-%{+yyyy.MM}"
+      when.contains:
+        tags: "details"
+
+setup.template.name: "node"
+setup.template.pattern: "node_*"
+setup.template.enabled: false
+setup.template.overwrite: true
