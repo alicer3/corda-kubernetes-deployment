@@ -6,6 +6,7 @@ metadata:
     app: {{ .Values.config.resourceName }}-database-service
     group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
+    comp: database
 spec:
   selector:
     app: {{ .Values.config.resourceName }}-database
@@ -26,6 +27,7 @@ metadata:
     app: {{ .Values.config.resourceName }}-database
     group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
+    comp: database
 spec:
   selector:
     matchLabels:
@@ -35,7 +37,7 @@ spec:
     metadata:
       labels:
         app: {{ .Values.config.resourceName }}-database
-        tier: database
+        comp: database
         group: {{ .Values.config.resourceName }}
         env: {{ .Values.config.env }}
     spec:

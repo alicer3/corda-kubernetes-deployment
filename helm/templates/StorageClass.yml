@@ -6,6 +6,7 @@ metadata:
     app: {{ .Values.config.resourceName }}-storage
     group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
+    comp: node
 provisioner: kubernetes.io/{{ .Values.config.storage.azureFile.provisioner }}
 parameters:
   skuName: {{ .Values.config.storage.azureFile.skuName }}

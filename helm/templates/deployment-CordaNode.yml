@@ -6,6 +6,7 @@ metadata:
     app: {{ .Values.config.resourceName }}-service
     group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
+    comp: node
 spec:
   loadBalancerIP: "{{ .Values.config.nodeLoadBalancerIP }}"
   type: LoadBalancer
@@ -37,6 +38,7 @@ metadata:
     app: {{ .Values.config.resourceName }}-node
     group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
+    comp: node
 spec:
   replicas: 1   
   selector:
@@ -48,6 +50,7 @@ spec:
         app: {{ .Values.config.resourceName }}-node
         group: {{ .Values.config.resourceName }}
         env: {{ .Values.config.env }}
+        comp: node
     spec:
       securityContext:
         runAsNonRoot: true

@@ -100,6 +100,6 @@ main() {
   curlWeb
 
   DT=`date +"%Y%m%d%H%M%S"`
-  mv $LOG_FILE "$NODE-sanitycheck-$DT.log"
+  mv $LOG_FILE "$DIR/logs/sanitycheck/$NODE-sanitycheck-$DT.log"
 }
 main

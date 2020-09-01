@@ -14,7 +14,7 @@ filebeat.inputs:
   tags: ["details"]
 
 output.elasticsearch:
-  hosts: ["elasticsearch-coadjute-dev.uksouth.cloudapp.azure.com:9200"]
+  hosts: ["{{ .Values.config.namespace }}-elasticsearch.uksouth.cloudapp.azure.com:9200"]
   indices:
     - index: "{{ .Values.config.resourceName }}-%{[beat.version]}-%{+yyyy.MM}"
       when.contains:

@@ -6,6 +6,7 @@ metadata:
     app: {{ .Values.config.resourceName }}-pvc
     group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
+    comp: node
 spec:
   accessModes:
     - ReadWriteOnce
@@ -23,6 +24,7 @@ metadata:
     app: {{ .Values.config.resourceName }}-pv
     group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
+    comp: node
 spec:
   storageClassName: {{ .Values.config.storage.resourceName }}
   capacity:
