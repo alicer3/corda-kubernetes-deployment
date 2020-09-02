@@ -232,10 +232,10 @@ askForArtifactoryLoginInformation () {
 }
 
 main () {
-	ARTIFACTORY_CONFIG_RAW=$(grep -A 5 'artifactoryR3:' $DIR/../helm/values.yaml)
-	ARTIFACTORY_USER=$(echo "$ARTIFACTORY_CONFIG_RAW" | grep 'artifactory_username: "' | cut -d '"' -f 2)
-	ARTIFACTORY_PASSWORD=$(echo "$ARTIFACTORY_CONFIG_RAW" | grep 'artifactory_password: "' | cut -d '"' -f 2)
-	ARTEMIS_OOP_ENABLED=$(grep -A 3 'artemis:' $DIR/../helm/values.yaml | grep 'enabled: "' | cut -d ':' -f 2)
+	ARTIFACTORY_CONFIG_RAW=""
+	ARTIFACTORY_USER=""
+	ARTIFACTORY_PASSWORD=""
+	ARTEMIS_OOP_ENABLED=""
 	askForArtifactoryLoginInformation
 	downloadBinaries
 	return 0

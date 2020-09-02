@@ -65,6 +65,7 @@ checkDockerImageStatus() {
   if [ "$RESULT" = "" ]; then
     log "Building Sprintboot Image for $DATE..." $LOG_PATH
     . $DIR/../docker-images/handle_sprintboot_image.sh $DATE
+    GetPathToCurrentlyExecutingScript
   else
     log "Sprintboot image :$DATE is available. Skipping image building." $LOG_PATH
   fi
@@ -106,23 +107,23 @@ updateNodeByDate() {
 
       # compile template based on updated values.yaml
       helm template $DIR --name $TEMPLATE_NAMESPACE --namespace $TEMPLATE_NAMESPACE --output-dir $DIR/output
+      if [ $UPDATENODE -eq 0 ]; then updateCordaNodeByDate $DATE $NODE; fi
+      if [ $UPDATESPRINTBOOT -eq 0 ]; then updateSprintBootByDate $DATE $NODE; fi
     else
       log "Cannot find $VALUES for deployment!" $LOG_PATH
     fi
 
-    if [ $UPDATENODE -eq 0 ]; then updateCordaNodeByDate $DATE $NODE; fi
-    if [ $UPDATESPRINTBOOT -eq 0 ]; then updateSprintBootByDate $DATE $NODE; fi
   fi
 }
 
 main() {
-  DATE="20200831"
+  DATE=$1
 
   SPRINTBOOT_APP_FOLDER=$DIR/../docker-images/bin/sprintboot/$DATE
   CORDAPP_FOLDER=$DIR/files/cordapps/$DATE
 
   # nodePrefix=("node-1" "node-2" "node-3" "node-4" "node-5")
-  nodePrefix=("node-3")
+  nodePrefix=("node1" "node2")
   len=${#nodePrefix[@]}
 
   # check whether the release for given day is present. If not, no update will be performed.
@@ -150,4 +151,4 @@ main() {
   log "Scheduled job completed." $LOG_PATH
   exit 0
 }
-main
+main $1

@@ -150,5 +150,6 @@ HelmCompile () {
 log() {
   # shellcheck disable=SC2006
   today=`date "+%Y%m%d"`
+  echo $1
   echo "[`date '+%Y%m%d-%H:%M:%S.%N'`]====== $1 ... ====== " >> $2
 }
