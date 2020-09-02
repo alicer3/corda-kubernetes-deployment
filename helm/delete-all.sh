@@ -63,8 +63,8 @@ DeleteAzureResources() {
       --account-key $ACCOUNT_KEY \
       --name $FILESHARE
 
-  az network public-ip delete -g $RESOURCE_GROUP -n "$FILESHARE-ip"
-  az network public-ip delete -g $RESOURCE_GROUP -n "$FILESHARE-database-ip"
+  az network public-ip delete -g $RESOURCE_GROUP -n "$FILESHARE-$ENV-ip"
+  az network public-ip delete -g $RESOURCE_GROUP -n "$FILESHARE-$ENV-database-ip"
   echo "====== Deleting Azure resources in $FILESHARE completed. ======"
 }
 

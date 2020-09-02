@@ -74,8 +74,8 @@ prepareFileShareAndPublicIP() {
   --output none
 
   echo "Creating public IP for node, DB..."
-  az network public-ip create -g $NODEPOOL_RG -n "$PREFIX-ip" --dns-name "$PREFIX-ip" --allocation-method Static --sku Standard
-  az network public-ip create -g $NODEPOOL_RG -n "$PREFIX-database-ip" --dns-name "$PREFIX-database-ip" --allocation-method Static --sku Standard
+  az network public-ip create -g $NODEPOOL_RG -n "$PREFIX-$ENV-ip" --dns-name "$PREFIX-$ENV-ip" --allocation-method Static --sku Standard
+  az network public-ip create -g $NODEPOOL_RG -n "$PREFIX-$ENV-database-ip" --dns-name "$PREFIX-$ENV-database-ip" --allocation-method Static --sku Standard
 
 }
 
@@ -84,8 +84,8 @@ prepareFileShareAndPublicIP
 # define variables -> create azure resources -> retrieve IPs -> generate values.yaml
 generateValuesYml() {
 
-  NODEIP=$(az network public-ip show -g $NODEPOOL_RG -n "$PREFIX-ip" |grep ipAddress |cut -d '"' -f 4)
-  DBIP=$(az network public-ip show -g $NODEPOOL_RG -n "$PREFIX-database-ip" |grep ipAddress |cut -d '"' -f 4)
+  NODEIP=$(az network public-ip show -g $NODEPOOL_RG -n "$PREFIX-$ENV-ip" |grep ipAddress |cut -d '"' -f 4)
+  DBIP=$(az network public-ip show -g $NODEPOOL_RG -n "$PREFIX-$ENV-database-ip" |grep ipAddress |cut -d '"' -f 4)
   INGRESS_IP=$(az network public-ip show -g $NODEPOOL_RG -n "$NAMESPACE-ingress-ip" |grep ipAddress |cut -d '"' -f 4)
   echo "node public IP = $NODEIP"
   echo "node db public IP = $DBIP"
@@ -98,8 +98,8 @@ generateValuesYml() {
   sbaddress: \"$NAMESPACE-ip.uksouth.cloudapp.azure.com\"
   resourceName: \"$PREFIX\"
   storageResourceName: \"$PREFIX-storage\"
-  p2paddress: \"$PREFIX-ip.uksouth.cloudapp.azure.com\"
-  dbaddress: \"$PREFIX-database-ip.uksouth.cloudapp.azure.com\"
+  p2paddress: \"$PREFIX-$ENV-ip.uksouth.cloudapp.azure.com\"
+  dbaddress: \"$PREFIX-$ENV-database-ip.uksouth.cloudapp.azure.com\"
   x500Name: \"$X500NAME\"
   apiVersion: \"$APIVERSION\"
   namespace: \"$NAMESPACE\"

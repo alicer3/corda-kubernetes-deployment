@@ -1,15 +1,16 @@
 #!/bin/bash
 
 ######################## NODE VARIBLES START ########################
-PREFIX="node-5"
-X500NAME="O=Node5,L=London,C=GB"
-APIVERSION="2"
+PREFIX="xxx"
+X500NAME="xxx"
+APIVERSION="yyyymmdd"
 ######################## NODE VARIBLES END ########################
 
 ######################## ENV VARIBLES START ########################
 NAMESPACE="coadjute-dev" #namespace
 ENV="dev" #env
 CERT_NS="cert-manager" #namespace for cert-manager and nginx-ingress controller deployment
+LOG_NS="logging"
 
 # Azure Info
 ACR_ADDRESS="acrcoadjute.azurecr.io" #acraddress
