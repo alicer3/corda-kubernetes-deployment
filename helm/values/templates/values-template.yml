@@ -44,7 +44,7 @@ setup:
   cloudProvider: "azure"
 
 apiconfig:
-  dockerImageSprintboot: "sprintboot_%s:v1.00"
+  dockerImageSprintboot: "sprintboot:%s"
   apiVersion: "{{ .Values.apiVersion }}"
   sprintbootIP: "{{ .Values.sbPublicIP }}"
   sprintbootDNS: "{{ .Values.sbaddress }}"
