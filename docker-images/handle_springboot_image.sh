@@ -64,7 +64,7 @@ BuildDockerImages () {
   cd $DIR/$SPRINGBOOT_PATH
   echo "$DOCKER_CMD build -t $SPRINGBOOT_PATH:$API_VERSION . -f Dockerfile $NO_CACHE"
   $DOCKER_CMD build -t $SPRINGBOOT_PATH:$API_VERSION . -f Dockerfile $NO_CACHE
-  rm api*.jar
+  rm *.jar
 
 	echo "Listing all images starting with name 'springboot_' :"
 	$DOCKER_CMD images "springboot*"
