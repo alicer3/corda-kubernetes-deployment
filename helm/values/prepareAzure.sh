@@ -73,6 +73,12 @@ prepareFileShareAndPublicIP() {
   --name "cordapps" \
   --output none
 
+    az storage directory create \
+  --account-key $ASA_KEY --account-name $ASA_NAME\
+  --share-name $FILESHARE \
+  --name "cordapps/config" \
+  --output none
+
   echo "Creating public IP for node, DB..."
   az network public-ip create -g $NODEPOOL_RG -n "$PREFIX-$ENV-ip" --dns-name "$PREFIX-$ENV-ip" --allocation-method Static --sku Standard
   az network public-ip create -g $NODEPOOL_RG -n "$PREFIX-$ENV-database-ip" --dns-name "$PREFIX-$ENV-database-ip" --allocation-method Static --sku Standard

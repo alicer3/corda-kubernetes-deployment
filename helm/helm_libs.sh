@@ -125,6 +125,14 @@ ReuploadCorDappsInFileShare () {
     --destination "https://$ACCOUNT_NAME.file.core.windows.net/$FILESHARE" --source $SOURCE \
     --destination-path cordapps --pattern '*.jar'
     echo "Done uploading cordapps"
+
+    if [ -d $SOURCE/config ]; then
+      echo "Uploading cordapps config..."
+      az storage file upload-batch --account-key $ACCOUNT_KEY --account-name $ACCOUNT_NAME \
+      --destination "https://$ACCOUNT_NAME.file.core.windows.net/$FILESHARE" --source $SOURCE/config \
+      --destination-path cordapps/config --pattern '*'
+      echo "Done uploading cordapps config"
+    fi
 }
 
 HelmCompile () {
