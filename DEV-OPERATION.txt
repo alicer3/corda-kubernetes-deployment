@@ -1,4 +1,4 @@
-This guide is for quickly enabling you to deploy a node (CE node + DB + sprintboot app).
+This guide is for quickly enabling you to deploy a node (CE node + DB + springboot app).
 
 Get to home folder of root:
 1. sudo su
@@ -16,6 +16,6 @@ To deploy a node:
 
 Update Coadjute release:
 1. replace the cordapp in helm/files/cordapps folder
-2. build a new sprintboot docker image for new sprintboot application with the APIVERSION
+2. build a new springboot docker image for new springboot application with the APIVERSION
 
 For full operation guide, refer to README.md.

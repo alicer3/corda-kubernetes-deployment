@@ -37,7 +37,7 @@ DeleteAllKubernetesResources () {
 }
 
 DeleteResourceNameKubernetesResources () {
-  # seperate node, db, sprintboot
+  # seperate node, db, springboot
   RESOURCE_NAME=$(grep -A 10 'config:' $DIR/values.yaml | grep 'resourceName: "' | cut -d '"' -f 2)
 
 	kubectl delete jobs,pods,services,deployments,statefulsets,configmaps,svc,pvc,pv,secrets,storageclass,ingress -l group=$RESOURCE_NAME --wait=false

@@ -11,14 +11,14 @@ metadata:
     app: {{ .Values.config.resourceName }}-ingress
     group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
-    comp: sprintboot
+    comp: springboot
 spec:
   tls:
     - hosts:
-        - {{ .Values.apiconfig.sprintbootDNS }}
+        - {{ .Values.apiconfig.springbootDNS }}
       secretName: tls-secret
   rules:
-    - host: {{ .Values.apiconfig.sprintbootDNS }}
+    - host: {{ .Values.apiconfig.springbootDNS }}
       http:
         paths:
           - backend:

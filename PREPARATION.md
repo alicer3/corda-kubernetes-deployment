@@ -81,7 +81,7 @@ see https://docs.docker.com/engine/install/
 - Node Variables 
     - PREFIX # serve as primary key for this set of deployment. It will be used in deployment naming and tagging. 
     - X500NAME # the X500NAME the node uses to register on network
-    - APIVERSION # the sprintboot application version to deploy
+    - APIVERSION # the springboot application version to deploy
 - Environment Variables
     - NAMESPACE # helm namespace
     - ENV # environment tag, used in kubernetes deployment labeling

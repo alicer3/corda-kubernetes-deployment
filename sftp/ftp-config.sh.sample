@@ -1,0 +1,5 @@
+#!/bin/bash
+
+SERVER="xxx.xxx.xxx.xxx"
+USER="xxx"
+PASSWORD="xxx"

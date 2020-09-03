@@ -95,15 +95,15 @@ DOCKER_PASSWORD=$ACR_PASSWORD
 VERSION=""
 VERSION=$(grep 'cordaVersion:' $DIR/../helm/values/templates/values-template.yml | cut -d '"' -f 2 | tr '[:upper:]' '[:lower:]')
 HEALTH_CHECK_VERSION=$VERSION
-#API_IMAGE=$(grep -A 10 'apiconfig:' $DIR/../helm/values.yaml | grep 'dockerImageSprintboot: "' | cut -d '"' -f 2)
+#API_IMAGE=$(grep -A 10 'apiconfig:' $DIR/../helm/values.yaml | grep 'dockerImagespringboot: "' | cut -d '"' -f 2)
 
 
 CORDA_VERSION="corda-ent-$VERSION"
 CORDA_IMAGE_PATH="corda_image_ent"
 CORDA_DOCKER_IMAGE_VERSION="v1.00"
 
-#SPRINTBOOT_API_VERSION="api-$APIVERSION"
-SPRINTBOOT_PATH="sprintboot"
-#SPRINTBOOT_IMAGE_VERSION="v1.00"
+#SPRINGBOOT_API_VERSION="api-$APIVERSION"
+SPRINGBOOT_PATH="springboot"
+#SPRINGBOOT_IMAGE_VERSION="v1.00"
 
 CORDA_HEALTH_CHECK_VERSION="corda-tools-health-survey-$HEALTH_CHECK_VERSION"

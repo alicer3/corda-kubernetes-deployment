@@ -1,6 +1,6 @@
 # CORDA KUBERNETES DEPLOYMENT
 
-This repository (https://github.com/alicer3/corda-kubernetes-deployment) helps you with full set deployment in Kubernetes, including CE nodes, Postgres DB and Sprintboot Application.
+This repository (https://github.com/alicer3/corda-kubernetes-deployment) helps you with full set deployment in Kubernetes, including CE nodes, Postgres DB and springboot Application.
 
 This is meant to build Corda Managed Service Dev/QA environment for Coadjute.
 
@@ -52,9 +52,9 @@ Finish all the setup and configuration in [ONE-TIME SETUP](#ONE-TIME-SETUP)
 
 The operation side consists of few aspects. 
 - [one-time setup](#ONE-TIME-SETUP): environment configuration, docker image preparation for later deployment and Ingress Controller (shared by the whole environment) deployment
-- [per node deployment](#PER-NODE-DEPLOYMENT): deploy a node, its database and upper layer sprintboot application in different scenarios
+- [per node deployment](#PER-NODE-DEPLOYMENT): deploy a node, its database and upper layer springboot application in different scenarios
 - [deletion](#DELETION): how to delete the deployments
-- [per node modification](): this is not implemented yet, but it means partial re-deployment. eg. re-deploy the corda node without touching the DB and sprintboot application
+- [per node modification](): this is not implemented yet, but it means partial re-deployment. eg. re-deploy the corda node without touching the DB and springboot application
 - [useful commands](#USERFUL-COMMANDS): useful commands
 
 ### ONE-TIME SETUP
@@ -80,11 +80,11 @@ Before building docker images, you need to make sure you have all the binaries r
 - CE image:
     - run `build_docker_images.sh`
     - run `push_docker_images.sh`
-- Sprintboot image:
-    - run `handle_sprintboot_image.sh`
+- springboot image:
+    - run `handle_springboot_image.sh`
 
 #### Ingress Controller
-The Ingress Controller deployment is shared by all the sprintboot application deployment in the namespace.
+The Ingress Controller deployment is shared by all the springboot application deployment in the namespace.
 - run `./helm/env-prep/env-prep.sh`
 - choose option 1
 
@@ -125,7 +125,7 @@ The Elastic + Kibana deployment is shared by all the node deployments in the nam
 Explanation on main components
 - Docker images: All Docker images are pushed to Azure Container Registry for later deployment.
     - CE images are node images without cordapp installation used for CE node deployment
-    - springboot images are image with sprintboot application inside. Thus a new springboot image needs to be built and pushed whenever a new version of sprintboot application is published. `APIVERSION` is used to identify sprintboot application version.
+    - springboot images are image with springboot application inside. Thus a new springboot image needs to be built and pushed whenever a new version of springboot application is published. `APIVERSION` is used to identify springboot application version.
 - Helm
     - files
         - certificates: keeps a copy of node certificates so that the node could be deleted and deployed again
@@ -149,9 +149,9 @@ Explanation on main components
 - optimization for operation
     - partial re-deployment of node
         - redeploy node only with new cordapps
-        - redeploy sprintboot application only
+        - redeploy springboot application only
         - redeploy node and database
-        - redeploy node and sprintboot application
+        - redeploy node and springboot application
         - redeploy all deployments
     - batch deployment of nodes
 - Log expose: how to expose the logs in real time fashion

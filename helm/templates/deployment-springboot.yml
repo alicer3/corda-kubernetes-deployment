@@ -6,7 +6,7 @@ metadata:
     app: {{ .Values.config.resourceName }}-api-svc
     group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
-    comp: sprintboot
+    comp: springboot
 spec:
   type: ClusterIP
   ports:
@@ -23,7 +23,7 @@ metadata:
     app: {{ .Values.config.resourceName }}-api
     group: {{ .Values.config.resourceName }}
     env: {{ .Values.config.env }}
-    comp: sprintboot
+    comp: springboot
 spec:
   replicas: 1
   selector:
@@ -34,12 +34,12 @@ spec:
       labels:
         app: {{ .Values.config.resourceName }}-api
         group: {{ .Values.config.resourceName }}
-        comp: sprintboot
+        comp: springboot
     spec:
       containers:
         - name: {{ .Values.config.resourceName }}-api
-          #image: neilpeterson/aks-helloworld:v1 #{{ .Values.config.containerRegistry.serverAddress }}/{{ printf .Values.apiconfig.dockerImageSprintboot (.Values.apiconfig.apiVersion | lower) }}
-          image: {{ .Values.config.containerRegistry.serverAddress }}/{{ printf .Values.apiconfig.dockerImageSprintboot (.Values.apiconfig.apiVersion | lower) }}
+          #image: neilpeterson/aks-helloworld:v1 #{{ .Values.config.containerRegistry.serverAddress }}/{{ printf .Values.apiconfig.dockerImageSpringboot (.Values.apiconfig.apiVersion | lower) }}
+          image: {{ .Values.config.containerRegistry.serverAddress }}/{{ printf .Values.apiconfig.dockerImageSpringboot (.Values.apiconfig.apiVersion | lower) }}
           imagePullPolicy: Always
           ports:
             - containerPort: 80

@@ -44,10 +44,10 @@ setup:
   cloudProvider: "azure"
 
 apiconfig:
-  dockerImageSprintboot: "sprintboot:%s"
+  dockerImageSpringboot: "springboot:%s"
   apiVersion: "{{ .Values.apiVersion }}"
-  sprintbootIP: "{{ .Values.sbPublicIP }}"
-  sprintbootDNS: "{{ .Values.sbaddress }}"
+  springbootIP: "{{ .Values.sbPublicIP }}"
+  springbootDNS: "{{ .Values.sbaddress }}"
 # config defines the options that relate to the deployment but not specifically to the Corda Node
 config:
   # namespace defines the Kubernetes namespace that all resources will be deployed to

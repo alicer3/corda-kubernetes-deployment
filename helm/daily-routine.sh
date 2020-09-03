@@ -55,33 +55,32 @@ updateCordaNodeByDate() {
 
 }
 
-# check whether sprintboot docker image of specific day exists. if not, build and push the iamge
+# check whether springboot docker image of specific day exists. if not, build and push the iamge
 checkDockerImageStatus() {
   DATE=$1
 
   ACR_NAME=$(grep -A 50 'config:' $DIR/values.yaml |grep -A 10 'containerRegistry:' |grep 'serverAddress:'| cut -d '"' -f 2 | cut -d '.' -f 1)
-  RESULT=$(az acr repository show-tags -n $ACR_NAME --repository sprintboot --orderby time_desc --output table | grep $DATE)
+  RESULT=$(az acr repository show-tags -n $ACR_NAME --repository springboot --orderby time_desc --output table | grep $DATE)
   echo $RESULT
   if [ "$RESULT" = "" ]; then
-    log "Building Sprintboot Image for $DATE..." $LOG_PATH
-    . $DIR/../docker-images/handle_sprintboot_image.sh $DATE
+    log "Building springboot Image for $DATE..." $LOG_PATH
+    . $DIR/../docker-images/handle_springboot_image.sh $DATE
     GetPathToCurrentlyExecutingScript
   else
-    log "Sprintboot image :$DATE is available. Skipping image building." $LOG_PATH
+    log "springboot image :$DATE is available. Skipping image building." $LOG_PATH
   fi
 }
 
-updateSprintBootByDate() {
+updateSpringBootByDate() {
   DATE=$1
   NODE=$2
-  SPRINTBOOT_APP_FOLDER=$DIR/../docker-images/sprintboot/$DATE
 
-  # delete existing sprintboot deployment
-  log "Deleting existing sprintboot deployment..." $LOG_PATH
-  kubectl delete pods,deployments,services,ingress -l group=$NODE,comp=sprintboot
+  # delete existing springboot deployment
+  log "Deleting existing springboot deployment..." $LOG_PATH
+  kubectl delete pods,deployments,services,ingress -l group=$NODE,comp=springboot
 
-  log "Applying sprintboot templates to Kubernetes cluster:" $LOG_PATH
-  kubectl apply -f $DIR/output/corda/templates/deployment-sprintboot.yml --namespace=$TEMPLATE_NAMESPACE
+  log "Applying springboot templates to Kubernetes cluster:" $LOG_PATH
+  kubectl apply -f $DIR/output/corda/templates/deployment-springboot.yml --namespace=$TEMPLATE_NAMESPACE
   kubectl apply -f $DIR/output/corda/templates/Ingress.yml --namespace=$TEMPLATE_NAMESPACE
 
 }
@@ -90,9 +89,9 @@ updateNodeByDate() {
   DATE=$1
   NODE=$2
   UPDATENODE=$3
-  UPDATESPRINTBOOT=$4
+  UPDATESPRINGBOOT=$4
 
-  if [ $UPDATENODE -eq 1 -a $UPDATESPRINTBOOT -eq 1 ]; then
+  if [ $UPDATENODE -eq 1 -a $UPDATESPRINGBOOT -eq 1 ]; then
     log "No update will be performed." $LOG_PATH
   else
     # fetch the values.yaml from backup
@@ -108,7 +107,7 @@ updateNodeByDate() {
       # compile template based on updated values.yaml
       helm template $DIR --name $TEMPLATE_NAMESPACE --namespace $TEMPLATE_NAMESPACE --output-dir $DIR/output
       if [ $UPDATENODE -eq 0 ]; then updateCordaNodeByDate $DATE $NODE; fi
-      if [ $UPDATESPRINTBOOT -eq 0 ]; then updateSprintBootByDate $DATE $NODE; fi
+      if [ $UPDATESPRINGBOOT -eq 0 ]; then updateSpringBootByDate $DATE $NODE; fi
     else
       log "Cannot find $VALUES for deployment!" $LOG_PATH
     fi
@@ -119,7 +118,7 @@ updateNodeByDate() {
 main() {
   DATE=$1
 
-  SPRINTBOOT_APP_FOLDER=$DIR/../docker-images/bin/sprintboot/$DATE
+  SPRINGBOOT_APP_FOLDER=$DIR/../docker-images/bin/springboot/$DATE
   CORDAPP_FOLDER=$DIR/files/cordapps/$DATE
 
   # nodePrefix=("node-1" "node-2" "node-3" "node-4" "node-5")
@@ -129,10 +128,10 @@ main() {
   # check whether the release for given day is present. If not, no update will be performed.
   checkFolderStatus $CORDAPP_FOLDER
   result1=$?
-  checkFolderStatus $SPRINTBOOT_APP_FOLDER
+  checkFolderStatus $SPRINGBOOT_APP_FOLDER
   result2=$?
 
-  # check whether sprintboot docker image for this day is present. if not, build such image
+  # check whether springboot docker image for this day is present. if not, build such image
   if [ $result2 -eq 0 ]; then checkDockerImageStatus $DATE; GetPathToCurrentlyExecutingScript; fi
 
   # update node one by one

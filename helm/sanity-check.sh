@@ -70,7 +70,7 @@ runHealthSurvey() {
 
 curlWeb() {
   echo "===================== Web Check Start =====================" | tee /dev/fd/3
-  LINK=$(grep -A 10 'apiconfig:' $DIR/values.yaml | grep 'sprintbootDNS: "' | cut -d '"' -f 2)
+  LINK=$(grep -A 10 'apiconfig:' $DIR/values.yaml | grep 'springbootDNS: "' | cut -d '"' -f 2)
   echo "Checking https://$LINK/$NODE" | tee /dev/fd/3
   RESULT=$(curl -Is https://$LINK/$NODE | head -1)
   echo $RESULT | tee /dev/fd/3

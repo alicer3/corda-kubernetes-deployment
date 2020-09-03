@@ -57,18 +57,18 @@ API_VERSION=$1
 
 
 BuildDockerImages () {
-  echo "Building Sprintboot Docker image..."
-  echo "cp $DIR/bin/sprintboot/$API_VERSION/* $DIR/$SPRINTBOOT_PATH/"
-  cp $DIR/bin/sprintboot/$API_VERSION/* $DIR/$SPRINTBOOT_PATH/
-  echo "cd $DIR/$SPRINTBOOT_PATH"
-  cd $DIR/$SPRINTBOOT_PATH
-  echo "$DOCKER_CMD build -t $SPRINTBOOT_PATH:$API_VERSION . -f Dockerfile $NO_CACHE"
-  $DOCKER_CMD build -t $SPRINTBOOT_PATH:$API_VERSION . -f Dockerfile $NO_CACHE
+  echo "Building springboot Docker image..."
+  echo "cp $DIR/bin/springboot/$API_VERSION/* $DIR/$SPRINGBOOT_PATH/"
+  cp $DIR/bin/springboot/$API_VERSION/* $DIR/$SPRINGBOOT_PATH/
+  echo "cd $DIR/$SPRINGBOOT_PATH"
+  cd $DIR/$SPRINGBOOT_PATH
+  echo "$DOCKER_CMD build -t $SPRINGBOOT_PATH:$API_VERSION . -f Dockerfile $NO_CACHE"
+  $DOCKER_CMD build -t $SPRINGBOOT_PATH:$API_VERSION . -f Dockerfile $NO_CACHE
   rm api*.jar
 
-	echo "Listing all images starting with name 'sprintboot_' :"
-	$DOCKER_CMD images "sprintboot*"
-	echo "====== Building Sprintboot Docker images completed. ====== "
+	echo "Listing all images starting with name 'springboot_' :"
+	$DOCKER_CMD images "springboot*"
+	echo "====== Building springboot Docker images completed. ====== "
 }
 BuildDockerImages
 
@@ -84,11 +84,11 @@ PushDockerImages () {
 	$DOCKER_CMD login $DOCKER_REGISTRY --username $DOCKER_USER --password $DOCKER_PASSWORD
 
 	echo "Tagging Docker images..."
-  $DOCKER_CMD tag ${SPRINTBOOT_PATH}:$API_VERSION $DOCKER_REGISTRY/${SPRINTBOOT_PATH}:$API_VERSION
+  $DOCKER_CMD tag ${SPRINGBOOT_PATH}:$API_VERSION $DOCKER_REGISTRY/${SPRINGBOOT_PATH}:$API_VERSION
 
 	echo "Pushing Docker images to Docker repository..."
-	SPRINTBOOT_DOCKER_REGISTRY=$(echo $DOCKER_REGISTRY/${SPRINTBOOT_PATH}:$API_VERSION 2>&1 | tr '[:upper:]' '[:lower:]')
-	$DOCKER_CMD push $SPRINTBOOT_DOCKER_REGISTRY
+	SPRINGBOOT_DOCKER_REGISTRY=$(echo $DOCKER_REGISTRY/${SPRINGBOOT_PATH}:$API_VERSION 2>&1 | tr '[:upper:]' '[:lower:]')
+	$DOCKER_CMD push $SPRINGBOOT_DOCKER_REGISTRY
 	echo "====== Pushing Docker images completed. ====== "
 }
 PushDockerImages
