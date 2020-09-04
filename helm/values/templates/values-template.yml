@@ -57,6 +57,7 @@ config:
   resourceName: "{{ .Values.resourceName }}"
   # environment setting, either "dev" or "qa"
   env: "{{ .Values.env }}"
+  cordappVersion: "{{ .Values.cordappVersion }}"
   # dockerImageNode defines the Docker Image we will be deploying for the Corda Node
   dockerImageNode: "corda_image_ent_%s:v1.00"
   # dockerImageFirewall defines the Docker Image we will be deploying for the Corda Firewall

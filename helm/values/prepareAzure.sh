@@ -107,6 +107,7 @@ generateValuesYml() {
   p2paddress: \"$PREFIX-$ENV-ip.uksouth.cloudapp.azure.com\"
   dbaddress: \"$PREFIX-$ENV-database-ip.uksouth.cloudapp.azure.com\"
   x500Name: \"$X500NAME\"
+  cordappVersion: \"$CORDAPP_VERSION\"
   apiVersion: \"$APIVERSION\"
   namespace: \"$NAMESPACE\"
   env: \"$ENV\"

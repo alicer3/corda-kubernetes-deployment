@@ -109,10 +109,27 @@ ELKSetup() {
 
 }
 
+createDockerSecret() {
+    SERVER="{{.Values.config.containerRegistry.serverAddress}}"
+    USERNAME="{{ .Values.config.containerRegistry.username }}"
+    PASSWORD="{{ .Values.config.containerRegistry.password }}"
+    EMAIL="{{ .Values.config.containerRegistry.email }}"
+
+    kubectl create secret docker-registry --dry-run=true container-registry-secret \
+    --docker-server=$SERVER \
+    --docker-username=$USERNAME \
+    --docker-password=$PASSWORD \
+    --docker-email=$EMAIL \
+    -o yaml > $DIR/docker-secret.yml
+
+    kubectl apply -f $DIR/docker-secret.yml
+}
+
 main() {
 read -p "Select the deployment:
   1) Ingress Setup
   2) ELK Setup
+  3) Docker Secret Setup
   " selection
   echo $selection
 
@@ -122,6 +139,9 @@ read -p "Select the deployment:
          ;;
     "2") printf "Setting up ELK..\n"
          ELKSetup
+         ;;
+    "3") printf "Create Docker Secret..\n"
+         createDockerSecret
          ;;
     *) printf "illegal option"
         ;;
