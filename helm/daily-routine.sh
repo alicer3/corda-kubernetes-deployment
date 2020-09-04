@@ -17,11 +17,11 @@ updateNodeByDate() {
   UPDATENODE=$3
   UPDATESPRINGBOOT=$4
 
+  DeploymentPrerequisites $NODE
+  handleValues $NODE
   if [ $UPDATENODE -eq 1 -a $UPDATESPRINGBOOT -eq 1 ]; then
     echo "No update will be performed."
   else
-    echo $DIR
-    DeploymentPrerequisites $NODE
     handleValues $NODE $DATE
     if [ $UPDATENODE -eq 0 ]; then updateCordaNodeByDate $DATE $NODE; fi
     if [ $UPDATESPRINGBOOT -eq 0 ]; then updateSpringBootByDate $DATE $NODE; fi
@@ -35,7 +35,7 @@ main() {
   CORDAPP_FOLDER=$DIR/files/cordapps/$DATE
 
   # nodePrefix=("node-1" "node-2" "node-3" "node-4" "node-5")
-  nodePrefix=("testnode" "testnode1")
+  nodePrefix=("node1" "node2")
   len=${#nodePrefix[@]}
 
   # check whether the release for given day is present. If not, no update will be performed.
