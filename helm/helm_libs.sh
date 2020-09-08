@@ -56,6 +56,7 @@ InitialRegistration() {
 	fi
 }
 
+# check helm version, k8s cluster setting, network truststore
 HelmCompilePrerequisites () {
 	helm version | grep "v2." > /dev/null 2>&1
 	if [ "$?" -ne "0" ] ; then
@@ -81,11 +82,11 @@ HelmCompilePrerequisites () {
 
 }
 
+# check on network parameters, values and certs
 DeploymentPrerequisites() {
   RESOURCE_NAME=$1
 
   set -eu
-
 	if [ ! -f $DIR/files/network/network-parameters.file ]; then
 		echo -e "${RED}ERROR${NC}"
 		echo "$DIR/files/network-parameters.file missing, this should have been created by InitialRegistration in helm_compile.sh."
@@ -105,6 +106,8 @@ DeploymentPrerequisites() {
 		ls -al $DIR/files/certificates/node/$RESOURCE_NAME
 		exit 1
 	fi
+
+	# todo: check Azure resources
 
 }
 
@@ -135,32 +138,39 @@ checkDockerImageStatus() {
   echo $RESULT
   if [ "$RESULT" = "" ]; then
     echo "Building springboot Image for $DATE..."
+    BACKUP_DIR=$DIR
     . $DIR/../docker-images/handle_springboot_image.sh $DATE
+    DIR=$BACKUP_DIR
   else
     echo "Springboot image :$DATE is available. Skipping image building."
   fi
 }
 
 # fetch node values and update the apiVersion and cordappVersion if a date argument is present
-# handleValues $NODE $DATE(opt)
+# handleValues $NODE $CORDAPP_VERSION $API_VERSION
 handleValues() {
   NODE=$1
+  CORDAPP_VERSION=$2
+  SPRINGBOOT_VERSION=$3
 
   echo "$NODE: Handling values.yaml..."
   VALUES=$DIR/values.yaml
   BACKUP_VALUES=$DIR/files/values/$NODE.yaml
-  if [ $# -eq 2 ]; then
-    DATE=$2
-    sed -i '' -e "s/.*apiVersion.*/  apiVersion: \"$DATE\"/" $BACKUP_VALUES
-    sed -i '' -e "s/.*cordappVersion.*/  cordappVersion: \"$DATE\"/" $BACKUP_VALUES
+  if [ $CORDAPP_VERSION != "" ]; then
+    sed -i -e "s/.*cordappVersion.*/  cordappVersion: \"$CORDAPP_VERSION\"/" $BACKUP_VALUES
+  fi
+  if [ $SPRINGBOOT_VERSION != "" ]; then
+    sed -i -e "s/.*apiVersion.*/  apiVersion: \"$SPRINGBOOT_VERSION\"/" $BACKUP_VALUES
   fi
   cp $BACKUP_VALUES $VALUES
+}
 
+# compile template based on values.yaml
+compileTemplates() {
   # compile template based on updated values.yaml
-  echo "$NODE: Compiling helm templates..."
-  TEMPLATE_NAMESPACE=$(grep -A 3 'config:' $VALUES | grep 'namespace: "' | cut -d '"' -f 2)
+  echo "Compiling helm templates using values.yaml..."
+  TEMPLATE_NAMESPACE=$(grep -A 3 'config:' $DIR/values.yaml | grep 'namespace: "' | cut -d '"' -f 2)
   helm template $DIR --name $TEMPLATE_NAMESPACE --namespace $TEMPLATE_NAMESPACE --output-dir $DIR/output
-
 }
 
 # upload cordapps and config in Azure fileshare
@@ -192,36 +202,142 @@ ReuploadCorDappsInFileShare () {
 }
 
 # update the Corda node to the cordapp release of certain day
+#updateCordaNodeByDate() {
+#  DATE=$1
+#  NODE=$2
+#  CORDAPP_FOLDER=$DIR/files/cordapps/$DATE
+#
+#  # delete existing node deployment
+#  echo "$NODE: Deleting node deployment..."
+#  kubectl delete pods,deployments,services,pvc,pv,secrets,storageclass -l group=$NODE,comp=node
+#
+#  # replace the cordapps in fileshare
+#  ReuploadCorDappsInFileShare $CORDAPP_FOLDER
+#
+#  echo "$NODE: Applying Corda node templates to Kubernetes cluster..."
+#  kubectl apply -f $DIR/output/corda/templates/deployment-CordaNode.yml --namespace=$TEMPLATE_NAMESPACE
+#  kubectl apply -f $DIR/output/corda/templates/secret-CordaNodeAzureFile.yml --namespace=$TEMPLATE_NAMESPACE
+#  kubectl apply -f $DIR/output/corda/templates/StorageClass.yml --namespace=$TEMPLATE_NAMESPACE
+#  kubectl apply -f $DIR/output/corda/templates/volume-CordaNode.yml --namespace=$TEMPLATE_NAMESPACE
+#
+#}
+
+# update the Corda node to the cordapp release of certain day
 updateCordaNodeByDate() {
   DATE=$1
   NODE=$2
   CORDAPP_FOLDER=$DIR/files/cordapps/$DATE
 
-  # delete existing node deployment
-  echo "$NODE: Deleting node deployment..."
-  kubectl delete pods,deployments,services,pvc,pv,secrets,storageclass -l group=$NODE,comp=node
+  checkFolderStatus $CORDAPP_FOLDER
+  if [ $? -eq 1 ]; then
+    echo -e "${YELLOW}No cordapp release found for $DATE{$NC}"
+  else
+    handleValues $NODE $DATE ""
+    compileTemplates
+    # delete existing node deployment
+    echo "$NODE: Deleting node deployment..."
+    kubectl delete pods,deployments,services,pvc,pv,secrets,storageclass -l group=$NODE,comp=node
 
-  # replace the cordapps in fileshare
-  ReuploadCorDappsInFileShare $CORDAPP_FOLDER
+    # replace the cordapps in fileshare
+    ReuploadCorDappsInFileShare $CORDAPP_FOLDER
 
-  echo "$NODE: Applying Corda node templates to Kubernetes cluster..."
-  kubectl apply -f $DIR/output/corda/templates/deployment-CordaNode.yml --namespace=$TEMPLATE_NAMESPACE
-  kubectl apply -f $DIR/output/corda/templates/secret-CordaNodeAzureFile.yml --namespace=$TEMPLATE_NAMESPACE
-  kubectl apply -f $DIR/output/corda/templates/StorageClass.yml --namespace=$TEMPLATE_NAMESPACE
-  kubectl apply -f $DIR/output/corda/templates/volume-CordaNode.yml --namespace=$TEMPLATE_NAMESPACE
+    echo "$NODE: Applying Corda node templates to Kubernetes cluster..."
+    kubectl apply -f $DIR/output/corda/templates/deployment-CordaNode.yml --namespace=$TEMPLATE_NAMESPACE
+    kubectl apply -f $DIR/output/corda/templates/secret-CordaNodeAzureFile.yml --namespace=$TEMPLATE_NAMESPACE
+    kubectl apply -f $DIR/output/corda/templates/StorageClass.yml --namespace=$TEMPLATE_NAMESPACE
+    kubectl apply -f $DIR/output/corda/templates/volume-CordaNode.yml --namespace=$TEMPLATE_NAMESPACE
+  fi
 
 }
 
-updateSpringBootByDate() {
+updateSpringbootByDate() {
   DATE=$1
   NODE=$2
+  SPRINGBOOT_APP_FOLDER=$DIR/../docker-images/bin/springboot/$DATE
 
-  # delete existing springboot deployment
-  echo "$NODE: Deleting existing springboot deployment..."
-  kubectl delete pods,deployments,services,ingress -l group=$NODE,comp=springboot
+  checkFolderStatus $SPRINGBOOT_APP_FOLDER
+  if [ $? -eq 1 ]; then
+    echo -e "${YELLOW}No springboot release found for $DATE{$NC}"
+  else
+    checkDockerImageStatus $DATE
+    handleValues $NODE "" $DATE
+    compileTemplates
+    # delete existing springboot deployment
+    echo "$NODE: Deleting existing springboot deployment..."
+    kubectl delete pods,deployments,services,ingress -l group=$NODE,comp=springboot
 
-  echo "$NODE: Applying springboot templates to Kubernetes cluster..."
-  kubectl apply -f $DIR/output/corda/templates/deployment-springboot.yml --namespace=$TEMPLATE_NAMESPACE
-  kubectl apply -f $DIR/output/corda/templates/Ingress.yml --namespace=$TEMPLATE_NAMESPACE
+    echo "$NODE: Applying springboot templates to Kubernetes cluster..."
+    kubectl apply -f $DIR/output/corda/templates/deployment-springboot.yml --namespace=$TEMPLATE_NAMESPACE
+    kubectl apply -f $DIR/output/corda/templates/Ingress.yml --namespace=$TEMPLATE_NAMESPACE
+  fi
+}
+
+# display node setting based on backup values
+DisplayNodeSetting() {
+  NODE=$1
+  VALUES=$DIR/files/values/$NODE.yaml
+  if [ ! -f $VALUES ]; then
+		echo -e "${RED}ERROR${NC}"
+		echo "$VALUES missing. It should have been created when deploying $NODE for the first time."
+		exit 1
+	fi
+
+  echo "$NODE: current setting"
+  echo "- resourceName: $NODE"
+  echo "- X500Name: $(grep -A 10 "corda:" $VALUES |grep 'legalName: "' | cut -d '"' -f 2)"
+  echo "- cordappVersion: $( grep -A 10 "config:" $VALUES |grep 'cordappVersion: "'| cut -d '"' -f 2)"
+  echo "- apiVersion: $(grep -A 10 "apiconfig:" $VALUES |grep 'apiVersion: "' | cut -d '"' -f 2)"
+}
+
+# delete DB resources
+ResetDatabase(){
+  NODE=$1
+	handleValues $NODE "" ""
+  compileTemplates
+  # delete existing database deployment
+  echo "$NODE: Deleting existing database deployment..."
+  kubectl delete jobs,pods,services,deployments,statefulsets,configmaps,svc,pvc,pv,secrets,storageclass,ingress -l group=$NODE,comp=database --wait=false
+
+  echo "$NODE: Applying database templates to Kubernetes cluster..."
+  kubectl apply -f $DIR/output/corda/templates/deployment-CordaPostgres.yml --namespace=$TEMPLATE_NAMESPACE
+
+}
+
+ResetDeployment(){
+  NODE=$1
+  handleValues $NODE "" ""
+  InitialRegistration
+  DeploymentPrerequisites $NODE
+  compileTemplates
+
+  CORDAPP_VERSION=$(grep -A 30 'config:' $DIR/values.yaml |grep 'cordappVersion: "' | cut -d '"' -f 2)
+  CORDAPP_FOLDER=$DIR/files/cordapps/$CORDAPP_VERSION
+  SPRINGBOOT_VERSION=$(grep -A 30 'apiconfig:' $DIR/values.yaml | grep 'apiVersion: "' | cut -d '"' -f 2 )
+  SPRINGBOOT_APP_FOLDER=$DIR/../docker-images/bin/springboot/$SPRINGBOOT_VERSION
+
+  checkFolderStatus $CORDAPP_FOLDER
+  if [ $? -eq 1 ]; then
+    echo -e "${YELLOW}No cordapp release found for $CORDAPP_VERSION${NC}"
+    exit 1
+  else
+    echo -e "${GREEN}Found cordapp release found for $CORDAPP_VERSION${NC}"
+  fi
+
+  checkFolderStatus $SPRINGBOOT_APP_FOLDER
+  if [ $? -eq 1 ]; then
+    echo -e "${YELLOW}No springboot release found for $SPRINGBOOT_VERSION{$NC}"
+    exit 1
+  else
+    checkDockerImageStatus $SPRINGBOOT_VERSION
+  fi
+
+  # delete existing database deployment
+  echo "$NODE: Deleting existing database deployment..."
+  kubectl delete jobs,pods,services,deployments,statefulsets,configmaps,svc,pvc,pv,secrets,storageclass,ingress -l group=$NODE --wait=false
+
+  ReuploadCorDappsInFileShare $CORDAPP_FOLDER
+
+  echo "$NODE: Applying database templates to Kubernetes cluster..."
+  kubectl apply -f $DIR/output/corda/templates/ --namespace=$TEMPLATE_NAMESPACE
 
 }
