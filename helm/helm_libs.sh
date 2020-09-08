@@ -156,10 +156,10 @@ handleValues() {
   echo "$NODE: Handling values.yaml..."
   VALUES=$DIR/values.yaml
   BACKUP_VALUES=$DIR/files/values/$NODE.yaml
-  if [ $CORDAPP_VERSION != "" ]; then
+  if [ "$CORDAPP_VERSION" != "" ]; then
     sed -i -e "s/.*cordappVersion.*/  cordappVersion: \"$CORDAPP_VERSION\"/" $BACKUP_VALUES
   fi
-  if [ $SPRINGBOOT_VERSION != "" ]; then
+  if [ "$SPRINGBOOT_VERSION" != "" ]; then
     sed -i -e "s/.*apiVersion.*/  apiVersion: \"$SPRINGBOOT_VERSION\"/" $BACKUP_VALUES
   fi
   cp $BACKUP_VALUES $VALUES
@@ -228,9 +228,10 @@ updateCordaNodeByDate() {
   NODE=$2
   CORDAPP_FOLDER=$DIR/files/cordapps/$DATE
 
+  set +e
   checkFolderStatus $CORDAPP_FOLDER
   if [ $? -eq 1 ]; then
-    echo -e "${YELLOW}No cordapp release found for $DATE{$NC}"
+    echo -e "${YELLOW}No cordapp release found for $DATE${NC}"
   else
     handleValues $NODE $DATE ""
     compileTemplates
@@ -255,9 +256,10 @@ updateSpringbootByDate() {
   NODE=$2
   SPRINGBOOT_APP_FOLDER=$DIR/../docker-images/bin/springboot/$DATE
 
+  set +e
   checkFolderStatus $SPRINGBOOT_APP_FOLDER
   if [ $? -eq 1 ]; then
-    echo -e "${YELLOW}No springboot release found for $DATE{$NC}"
+    echo -e "${YELLOW}No springboot release found for $DATE${NC}"
   else
     checkDockerImageStatus $DATE
     handleValues $NODE "" $DATE
