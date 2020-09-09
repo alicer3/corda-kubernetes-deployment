@@ -25,28 +25,6 @@ Please see [PREPARATION.md](PREPARATION.md) for the checklist.
 It is strongly recommended you follow the CHECKLIST, to not skip an important step, especially the first time you set up this deployment,
 
 ---
-## SHORT OPERATION GUIDE (see [OPERATION](#OPERATION-GUIDE) for a full guide)
-
-### Before any actual deployments
-Finish all the setup and configuration in [ONE-TIME SETUP](#ONE-TIME-SETUP)
-
-### Deploy a new node
-1. update `variables.sh`
-2. run `prepareAzure.sh`
-3. run `helm_compile.sh`
-4. (optional) run `sanity_check.sh` to check on the deployment status
-
-### Delete an existing node
-1. run `delete-all.sh`
-2. select option 1 (delete kubernetes deployment) or option 2 (delete Azure resource) or option 3 (both)
-
-### Re-Deploy an existing node
-1. run `cp files/values/<PREFIX>.yaml ./values.yaml`
-2. if Azure resource deleted, recreate
-3. run `./helm_compile.sh`
-4. (optional) run `sanity_check.sh` to check on the deployment status
-
----
 
 ## OPERATION GUIDE
 
@@ -54,7 +32,6 @@ The operation side consists of few aspects.
 - [one-time setup](#ONE-TIME-SETUP): environment configuration, docker image preparation for later deployment and Ingress Controller (shared by the whole environment) deployment
 - [per node deployment](#PER-NODE-DEPLOYMENT): deploy a node, its database and upper layer springboot application in different scenarios
 - [deletion](#DELETION): how to delete the deployments
-- [per node modification](): this is not implemented yet, but it means partial re-deployment. eg. re-deploy the corda node without touching the DB and springboot application
 - [useful commands](#USERFUL-COMMANDS): useful commands
 
 ### ONE-TIME SETUP
@@ -93,21 +70,23 @@ The Elastic + Kibana deployment is shared by all the node deployments in the nam
 - run `./helm/env-prep/env-prep.sh`
 - choose option 2
 
-### PER NODE DEPLOYMENT
+### PER NODE OPERATION
 - `cd helm`
-- for new node deployment
+- for a new node deployment,
     - update the node variables in `variables.sh`
     - run `./values/prepareAzure.sh`
-    - run `./helm_compile.sh`
-- for an existing node deployment
-    - check in `files/certificates/node/<PREFIX>` to see whether the node certificates exist
-    - check in `files/values/` to see whether `<PREFIX>.yaml` exists
-    - check whether the Azure resources (file shares and public IPs) still there
-    - run `cp files/values/<PREFIX>.yaml ./values.yaml`
-    - run `./helm_compile.sh`
-- Sanity Check
-    - `cd helm`
-    - run `./sanity-check.sh`
+    - run `./helm_compile.sh <node>`
+    - choose option "reset/deploy node"
+- for an existing node deployment,
+    - run `./helm_compile.sh <node>` and choose from option below
+    - `1) display current setting`
+    - `2) update cordapp with specific date`
+    - `3) update springboot with specific date`
+    - `4) reset database`
+    - `5) delete node deployment`
+    - `6) reset/deploy node (database + node + springboot)`
+    - `7) sanity check`
+
 
 ### DELETION
 - `cd helm`
@@ -127,6 +106,7 @@ Explanation on main components
     - CE images are node images without cordapp installation used for CE node deployment
     - springboot images are image with springboot application inside. Thus a new springboot image needs to be built and pushed whenever a new version of springboot application is published. `APIVERSION` is used to identify springboot application version.
 - Helm
+    - env-prep: set up Ingress controller and ELK logging
     - files
         - certificates: keeps a copy of node certificates so that the node could be deleted and deployed again
         - conf: the node configuration template
@@ -139,23 +119,14 @@ Explanation on main components
     - values: generate `values.yaml` for later deployments and create Azure resources
         - prepareAzure.sh: use the values in `variables.sh` to fill in `values-template.yml` to create `values.yaml` and create Azure resources
     - delete-all.sh: handle deployment and Azure resource deletion
-    - helm_compile.sh: use `values.yaml` to compile helm charts and execute the actual deployments
-    - ingress_setup.sh: deployment ingress controller shared by the all namespace
+    - helm_compile.sh: allow you to operate on specific node
+    - daily-routine.sh: update the cordapp and springboot release of batch nodes to specific date 
     
 
 ---
 
 ## TO-DOS
-- optimization for operation
-    - partial re-deployment of node
-        - redeploy node only with new cordapps
-        - redeploy springboot application only
-        - redeploy node and database
-        - redeploy node and springboot application
-        - redeploy all deployments
-    - batch deployment of nodes
-- Log expose: how to expose the logs in real time fashion
-- View privilege account for DB
+
 
 ---
 ## Feedback

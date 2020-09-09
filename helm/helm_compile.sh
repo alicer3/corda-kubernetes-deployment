@@ -20,6 +20,7 @@ main() {
   4) reset database
   5) delete node deployment
   6) reset/deploy node (database + node + springboot)
+  7) sanity check
   " selection
   echo $selection
 
@@ -35,7 +36,7 @@ main() {
   # todo: check deployment status
 
   # check on values, certs
-  if [ $selection -lt 6 ]; then DeploymentPrerequisites $NODE; fi
+  if [ $selection -ne 6 ]; then DeploymentPrerequisites $NODE; fi
 
   case $selection in
     "1") printf "${YELLOW}Display current setting for $NODE${NC}\n"
@@ -57,6 +58,10 @@ main() {
          ;;
     "6") printf "${YELLOW} Re-deploying all kubernetes resources (including database) for $NODE..${NC}"
          ResetDeployment $NODE
+         ;;
+    "7") printf "${YELLOW} Running sanity check for $NODE..${NC}\n"
+         handleValues $NODE "" ""
+         . $DIR/sanity-check.sh
          ;;
     *) printf "illegal option"
         ;;
