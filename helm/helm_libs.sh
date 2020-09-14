@@ -298,7 +298,7 @@ ResetDatabase(){
   compileTemplates
   # delete existing database deployment
   echo "$NODE: Deleting existing database deployment..."
-  kubectl delete jobs,pods,services,deployments,statefulsets,configmaps,svc,pvc,pv,secrets,storageclass,ingress -l group=$NODE,comp=database --wait=false
+  kubectl delete jobs,pods,services,deployments,statefulsets,configmaps,svc,pvc,pv,secrets,storageclass,ingress -l group=$NODE,comp=database
 
   echo "$NODE: Applying database templates to Kubernetes cluster..."
   kubectl apply -f $DIR/output/corda/templates/deployment-CordaPostgres.yml --namespace=$TEMPLATE_NAMESPACE
@@ -335,7 +335,7 @@ ResetDeployment(){
 
   # delete existing database deployment
   echo "$NODE: Deleting existing database deployment..."
-  kubectl delete jobs,pods,services,deployments,statefulsets,configmaps,svc,pvc,pv,secrets,storageclass,ingress -l group=$NODE --wait=false
+  kubectl delete jobs,pods,services,deployments,statefulsets,configmaps,svc,pvc,pv,secrets,storageclass,ingress -l group=$NODE
 
   ReuploadCorDappsInFileShare $CORDAPP_FOLDER
 

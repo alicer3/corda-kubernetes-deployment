@@ -80,10 +80,10 @@ DeleteIngressResource() {
 }
 
 DeleteELKResource() {
-  kubectl delete pods, deployments, services --namespace $LOG_NS
+  kubectl delete --all pods,deployments,services --namespace $LOG_NS
   kubectl delete namespace $LOG_NS
-  az network public-ip delete -g $NODEPOOL_RG -n "$NAMESPACE-elasticsearch-ip"
-  az network public-ip delete -g $NODEPOOL_RG -n "$NAMESPACE-kibana-ip"
+#  az network public-ip delete -g $NODEPOOL_RG -n "$NAMESPACE-elasticsearch-ip"
+#  az network public-ip delete -g $NODEPOOL_RG -n "$NAMESPACE-kibana-ip"
 
 }
 
@@ -94,8 +94,9 @@ main() {
   1) kubernetes resources for $RESOURCE_NAME in $NAMESPACE
   2) Azure resources for $RESOURCE_NAME in $NAMESPACE
   3) 1+2
-  4) Ingress kubernetes and Azure resources for $NAMESPACE
-  5) all kubernetes resources in the $NAMESPACE
+  4) Ingress kubernetes and Azure resources
+  5) ELK kubernetes and Azure resources
+  6) all kubernetes resources in the $NAMESPACE
   " selection
   echo $selection
 
@@ -119,10 +120,13 @@ main() {
          Sleep 30
          DeleteAzureResources
          ;;
-    "4") printf "${YELLOW}Deleting Ingress kubernetes resources in $NAMESPACE..${NC}\n"
+    "4") printf "${YELLOW}Deleting Ingress kubernetes resources..${NC}\n"
          DeleteIngressResource
          ;;
-    "5") printf "${YELLOW}Deleting all kubernetes resources in $NAMESPACE..${NC}\n"
+    "5") printf "${YELLOW}Deleting ELK kubernetes resources ..${NC}\n"
+         DeleteELKResource
+         ;;
+    "6") printf "${YELLOW}Deleting all kubernetes resources in $NAMESPACE..${NC}\n"
          DeleteAllKubernetesResources
          ;;
     *) printf "illegal option"

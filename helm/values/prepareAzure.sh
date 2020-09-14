@@ -101,7 +101,7 @@ generateValuesYml() {
   nodePublicIP: \"$NODEIP\"
   databasePublicIP: \"$DBIP\"
   sbPublicIP: \"$INGRESS_IP\"
-  sbaddress: \"$NAMESPACE-ip.uksouth.cloudapp.azure.com\"
+  sbaddress: \"$NAMESPACE-ingress.uksouth.cloudapp.azure.com\"
   resourceName: \"$PREFIX\"
   storageResourceName: \"$PREFIX-storage\"
   p2paddress: \"$PREFIX-$ENV-ip.uksouth.cloudapp.azure.com\"

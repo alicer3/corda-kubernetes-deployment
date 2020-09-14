@@ -113,7 +113,7 @@ curlWeb() {
   echo "===================== Web Check Start =====================" | tee -a $LOG_FILE
   LINK=$(grep -A 10 'apiconfig:' $DIR/values.yaml | grep 'springbootDNS: "' | cut -d '"' -f 2)
   echo "Checking https://$LINK/$NODE" | tee -a $LOG_FILE
-  RESULT=$(curl -Is https://$LINK/$NODE | head -1)
+  RESULT=$(curl -Isk https://$LINK/$NODE | head -1)
   echo $RESULT | tee -a $LOG_FILE
   if [[ $RESULT == *"HTTP/2 200"* ]]; then
     echo -e "${GREEN}PASS${NC}"
